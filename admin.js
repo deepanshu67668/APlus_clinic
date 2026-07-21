@@ -237,6 +237,7 @@ function getAllMergedLeads() {
         treatment: String(a.treatment || 'General Consultation'),
         branch: String(a.branch || 'Rajender Nagar'),
         date: String(a.date || 'N/A'),
+        timeSlot: String(a.timeSlot || a.time || '09:00 AM - 10:00 AM'),
         timestamp: String(a.timestamp || 'N/A'),
         source: String(a.source || 'Website'),
         status: String(a.status || 'New')
