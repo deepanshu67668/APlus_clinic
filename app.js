@@ -17,7 +17,62 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollNav();
   initAutoLeadPopup();
   initHeroSlideshow();
+  initCloudRealtimeListeners();
 });
+
+// Real-Time Firebase Cloud Firestore Synchronization Listener
+function initCloudRealtimeListeners() {
+  if (typeof db === 'undefined' || !db) return;
+
+  try {
+    db.collection('treatments').onSnapshot(snapshot => {
+      if (snapshot && !snapshot.empty) {
+        const cloudData = [];
+        snapshot.forEach(doc => cloudData.push(doc.data()));
+        localStorage.setItem('aplus_treatments', JSON.stringify(cloudData));
+        renderDynamicTreatments();
+      }
+    });
+
+    db.collection('doctors').onSnapshot(snapshot => {
+      if (snapshot && !snapshot.empty) {
+        const cloudData = [];
+        snapshot.forEach(doc => cloudData.push(doc.data()));
+        localStorage.setItem('aplus_doctors', JSON.stringify(cloudData));
+        renderDynamicDoctors();
+      }
+    });
+
+    db.collection('gallery').onSnapshot(snapshot => {
+      if (snapshot && !snapshot.empty) {
+        const cloudData = [];
+        snapshot.forEach(doc => cloudData.push(doc.data()));
+        localStorage.setItem('aplus_gallery', JSON.stringify(cloudData));
+        renderDynamicGallery();
+      }
+    });
+
+    db.collection('blogs').onSnapshot(snapshot => {
+      if (snapshot && !snapshot.empty) {
+        const cloudData = [];
+        snapshot.forEach(doc => cloudData.push(doc.data()));
+        localStorage.setItem('aplus_blogs', JSON.stringify(cloudData));
+        renderDynamicBlogs();
+      }
+    });
+
+    db.collection('reviews').onSnapshot(snapshot => {
+      if (snapshot && !snapshot.empty) {
+        const cloudData = [];
+        snapshot.forEach(doc => cloudData.push(doc.data()));
+        localStorage.setItem('aplus_reviews', JSON.stringify(cloudData));
+        renderDynamicReviews();
+      }
+    });
+  } catch (e) {
+    console.warn('Realtime cloud sync initialized in fallback mode.', e);
+  }
+}
 
 // Fullscreen Clinic Gallery Modal Controls
 function openFullGalleryModal() {
@@ -726,12 +781,18 @@ function initFormHandlers() {
 }
 
 function saveAppointment(apt) {
-  let list = JSON.parse(localStorage.getItem('aplus_appointments') || '[]');
-  list = Array.isArray(list) ? list.filter(a => a && typeof a === 'object' && a.name && !['Rahul Sharma', 'Pooja Tyagi', 'Anil Verma', 'Kavita Gupta'].includes(a.name)) : [];
-  apt.id = Date.now().toString();
+  apt.id = apt.id || Date.now().toString();
   apt.timestamp = apt.timestamp || new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
   apt.timeSlot = apt.timeSlot || '09:00 AM - 10:00 AM';
   apt.status = 'New';
+
+  // Cloud Firestore Real-Time Write
+  if (typeof db !== 'undefined' && db) {
+    db.collection('appointments').doc(apt.id).set(apt).catch(e => console.log('Cloud Firestore write note:', e));
+  }
+
+  let list = JSON.parse(localStorage.getItem('aplus_appointments') || '[]');
+  list = Array.isArray(list) ? list.filter(a => a && typeof a === 'object' && a.id !== apt.id && a.name && !['Rahul Sharma', 'Pooja Tyagi', 'Anil Verma', 'Kavita Gupta'].includes(a.name)) : [];
   list.unshift(apt);
   localStorage.setItem('aplus_appointments', JSON.stringify(list));
   window.dispatchEvent(new Event('storage'));

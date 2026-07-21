@@ -5,6 +5,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   initPinAuth();
+  initAdminCloudListeners();
 
   // Real-time auto sync when forms are filled on index.html in another tab
   window.addEventListener('storage', () => {
@@ -19,6 +20,95 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, 2000);
 });
+
+// Real-Time Firebase Cloud Firestore Synchronization Listener for Admin Panel
+function initAdminCloudListeners() {
+  if (typeof db === 'undefined' || !db) return;
+
+  try {
+    db.collection('appointments').onSnapshot(snapshot => {
+      if (snapshot) {
+        const apts = [];
+        snapshot.forEach(doc => apts.push(doc.data()));
+        localStorage.setItem('aplus_appointments', JSON.stringify(apts));
+        renderAppointmentsTables();
+        renderStats();
+      }
+    });
+
+    db.collection('treatments').onSnapshot(snapshot => {
+      if (snapshot) {
+        const treats = [];
+        snapshot.forEach(doc => treats.push(doc.data()));
+        if (treats.length > 0) {
+          localStorage.setItem('aplus_treatments', JSON.stringify(treats));
+          renderTreatmentsTable();
+          renderStats();
+        }
+      }
+    });
+
+    db.collection('doctors').onSnapshot(snapshot => {
+      if (snapshot) {
+        const docs = [];
+        snapshot.forEach(doc => docs.push(doc.data()));
+        if (docs.length > 0) {
+          localStorage.setItem('aplus_doctors', JSON.stringify(docs));
+          renderDoctorsTable();
+          renderStats();
+        }
+      }
+    });
+
+    db.collection('team').onSnapshot(snapshot => {
+      if (snapshot) {
+        const team = [];
+        snapshot.forEach(doc => team.push(doc.data()));
+        if (team.length > 0) {
+          localStorage.setItem('aplus_team', JSON.stringify(team));
+          renderTeamTable();
+        }
+      }
+    });
+
+    db.collection('gallery').onSnapshot(snapshot => {
+      if (snapshot) {
+        const gal = [];
+        snapshot.forEach(doc => gal.push(doc.data()));
+        if (gal.length > 0) {
+          localStorage.setItem('aplus_gallery', JSON.stringify(gal));
+          renderGalleryTable();
+        }
+      }
+    });
+
+    db.collection('blogs').onSnapshot(snapshot => {
+      if (snapshot) {
+        const blogs = [];
+        snapshot.forEach(doc => blogs.push(doc.data()));
+        if (blogs.length > 0) {
+          localStorage.setItem('aplus_blogs', JSON.stringify(blogs));
+          renderBlogsTable();
+          renderStats();
+        }
+      }
+    });
+
+    db.collection('reviews').onSnapshot(snapshot => {
+      if (snapshot) {
+        const revs = [];
+        snapshot.forEach(doc => revs.push(doc.data()));
+        if (revs.length > 0) {
+          localStorage.setItem('aplus_reviews', JSON.stringify(revs));
+          renderReviewsTable();
+          renderStats();
+        }
+      }
+    });
+  } catch (e) {
+    console.warn('Admin realtime cloud sync initialized in fallback mode.', e);
+  }
+}
 
 // Admin Authentication PIN (Default: 1234)
 function initPinAuth() {
@@ -247,6 +337,9 @@ function toggleAppointmentStatus(id) {
   apts = apts.map(a => {
     if (a && a.id === id) {
       a.status = a.status === 'Contacted' ? 'New' : 'Contacted';
+      if (typeof db !== 'undefined' && db) {
+        db.collection('appointments').doc(id).set(a).catch(e => console.log(e));
+      }
     }
     return a;
   });
@@ -256,6 +349,10 @@ function toggleAppointmentStatus(id) {
 }
 
 function deleteAppointment(id) {
+  if (typeof db !== 'undefined' && db) {
+    db.collection('appointments').doc(id).delete().catch(e => console.log(e));
+  }
+
   let apts = JSON.parse(localStorage.getItem('aplus_appointments') || '[]');
   apts = apts.filter(a => a && a.id !== id);
   localStorage.setItem('aplus_appointments', JSON.stringify(apts));
@@ -271,6 +368,12 @@ function deleteAppointment(id) {
 
 function clearAllAppointments() {
   if (confirm('Are you sure you want to delete all patient leads?')) {
+    if (typeof db !== 'undefined' && db) {
+      db.collection('appointments').get().then(snap => {
+        snap.forEach(doc => doc.ref.delete());
+      }).catch(e => console.log(e));
+    }
+
     localStorage.removeItem('aplus_appointments');
     localStorage.removeItem('aplus_corporate_camps');
     localStorage.setItem('aplus_appointments', JSON.stringify([]));
@@ -298,6 +401,10 @@ if (treatForm) {
       desc: document.getElementById('treatDesc').value.trim(),
       features: ['100% Sterilized Procedure', 'CGHS & PM-JAY Benefit', 'Painless Dentistry Tech']
     };
+
+    if (typeof db !== 'undefined' && db) {
+      db.collection('treatments').doc(newTreat.id).set(newTreat).catch(e => console.log(e));
+    }
 
     if (editId) {
       treats = treats.map(t => t.id === editId ? newTreat : t);
@@ -340,6 +447,10 @@ function editTreatment(id) {
 
 function deleteTreatment(id) {
   if (confirm('Delete this treatment service?')) {
+    if (typeof db !== 'undefined' && db) {
+      db.collection('treatments').doc(id).delete().catch(e => console.log(e));
+    }
+
     let treats = JSON.parse(localStorage.getItem('aplus_treatments') || '[]');
     treats = treats.filter(t => t.id !== id);
     localStorage.setItem('aplus_treatments', JSON.stringify(treats));
@@ -399,6 +510,9 @@ if (docForm) {
           implants: implants,
           bio: bio || 'Senior Specialist Dental Surgeon at A Plus Dental Clinic.'
         };
+        if (typeof db !== 'undefined' && db) {
+          db.collection('doctors').doc(docItem.id).set(docItem).catch(e => console.log(e));
+        }
         if (editId) {
           docs = docs.map(d => d.id === editId ? docItem : d);
           showToast('Doctor Profile Updated!');
@@ -417,6 +531,9 @@ if (docForm) {
           exp: exp,
           img: photoUrl
         };
+        if (typeof db !== 'undefined' && db) {
+          db.collection('team').doc(teamItem.id).set(teamItem).catch(e => console.log(e));
+        }
         if (editId) {
           team = team.map(t => t.id === editId ? teamItem : t);
           showToast('Team Member Profile Updated!');
@@ -499,6 +616,10 @@ function editTeamMember(id) {
 
 function deleteDoctor(id) {
   if (confirm('Delete doctor profile?')) {
+    if (typeof db !== 'undefined' && db) {
+      db.collection('doctors').doc(id).delete().catch(e => console.log(e));
+    }
+
     let docs = JSON.parse(localStorage.getItem('aplus_doctors') || '[]');
     docs = docs.filter(d => d.id !== id);
     localStorage.setItem('aplus_doctors', JSON.stringify(docs));
@@ -510,6 +631,10 @@ function deleteDoctor(id) {
 
 function deleteTeamMember(id) {
   if (confirm('Delete associate team member?')) {
+    if (typeof db !== 'undefined' && db) {
+      db.collection('team').doc(id).delete().catch(e => console.log(e));
+    }
+
     let team = JSON.parse(localStorage.getItem('aplus_team') || '[]');
     team = team.filter(t => t.id !== id);
     localStorage.setItem('aplus_team', JSON.stringify(team));
@@ -573,6 +698,9 @@ if (galForm) {
         img: imgSrc,
         caption: caption
       };
+      if (typeof db !== 'undefined' && db) {
+        db.collection('gallery').doc(item.id).set(item).catch(e => console.log(e));
+      }
       if (editId) {
         gal = gal.map(g => g.id === editId ? item : g);
         showToast('Gallery Photo Updated!');
@@ -625,11 +753,17 @@ function editGalleryItem(id) {
 }
 
 function deleteGalleryItem(id) {
-  let gal = JSON.parse(localStorage.getItem('aplus_gallery') || '[]');
-  gal = gal.filter(g => g.id !== id);
-  localStorage.setItem('aplus_gallery', JSON.stringify(gal));
-  renderGalleryTable();
-  showToast('Photo Removed');
+  if (confirm('Delete this gallery photo?')) {
+    if (typeof db !== 'undefined' && db) {
+      db.collection('gallery').doc(id).delete().catch(e => console.log(e));
+    }
+
+    let gal = JSON.parse(localStorage.getItem('aplus_gallery') || '[]');
+    gal = gal.filter(g => g.id !== id);
+    localStorage.setItem('aplus_gallery', JSON.stringify(gal));
+    renderGalleryTable();
+    showToast('Photo Removed');
+  }
 }
 
 function renderGalleryTable() {
@@ -685,6 +819,10 @@ if (blogForm) {
         excerpt: document.getElementById('blogExcerpt').value.trim(),
         content: document.getElementById('blogContent').value.trim()
       };
+
+      if (typeof db !== 'undefined' && db) {
+        db.collection('blogs').doc(newBlog.id).set(newBlog).catch(e => console.log(e));
+      }
 
       if (editId) {
         blogs = blogs.map(b => b.id === editId ? newBlog : b);
@@ -743,6 +881,10 @@ function editBlog(id) {
 
 function deleteBlog(id) {
   if (confirm('Delete this article?')) {
+    if (typeof db !== 'undefined' && db) {
+      db.collection('blogs').doc(id).delete().catch(e => console.log(e));
+    }
+
     let blogs = JSON.parse(localStorage.getItem('aplus_blogs') || '[]');
     blogs = blogs.filter(b => b.id !== id);
     localStorage.setItem('aplus_blogs', JSON.stringify(blogs));
@@ -788,6 +930,10 @@ if (revForm) {
       text: document.getElementById('revText').value.trim()
     };
 
+    if (typeof db !== 'undefined' && db) {
+      db.collection('reviews').doc(item.id).set(item).catch(e => console.log(e));
+    }
+
     if (editId) {
       revs = revs.map(r => r.id === editId ? item : r);
       showToast('Patient Review Updated!');
@@ -831,12 +977,18 @@ function editReview(id) {
 }
 
 function deleteReview(id) {
-  let revs = JSON.parse(localStorage.getItem('aplus_reviews') || '[]');
-  revs = revs.filter(r => r.id !== id);
-  localStorage.setItem('aplus_reviews', JSON.stringify(revs));
-  renderReviewsTable();
-  renderStats();
-  showToast('Review Deleted');
+  if (confirm('Delete patient review?')) {
+    if (typeof db !== 'undefined' && db) {
+      db.collection('reviews').doc(id).delete().catch(e => console.log(e));
+    }
+
+    let revs = JSON.parse(localStorage.getItem('aplus_reviews') || '[]');
+    revs = revs.filter(r => r.id !== id);
+    localStorage.setItem('aplus_reviews', JSON.stringify(revs));
+    renderReviewsTable();
+    renderStats();
+    showToast('Review Deleted');
+  }
 }
 
 function renderReviewsTable() {
