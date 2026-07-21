@@ -136,7 +136,15 @@ function initHeroSlideshow() {
 
 // Default Initial Data Seed for LocalStorage
 function initStorageSeed() {
-  if (!localStorage.getItem('aplus_treatments')) {
+  const getStoredLen = (key) => {
+    try {
+      return JSON.parse(localStorage.getItem(key) || '[]').length;
+    } catch (e) {
+      return 0;
+    }
+  };
+
+  if (!localStorage.getItem('aplus_treatments') || getStoredLen('aplus_treatments') === 0) {
     const defaultTreatments = [
       {
         id: 'implants',
@@ -226,7 +234,7 @@ function initStorageSeed() {
     localStorage.setItem('aplus_treatments', JSON.stringify(defaultTreatments));
   }
 
-  if (!localStorage.getItem('aplus_doctors')) {
+  if (!localStorage.getItem('aplus_doctors') || getStoredLen('aplus_doctors') === 0) {
     const defaultDoctors = [
       {
         id: 'dr_vishal',
@@ -241,9 +249,16 @@ function initStorageSeed() {
       }
     ];
     localStorage.setItem('aplus_doctors', JSON.stringify(defaultDoctors));
+  } else {
+    // Force update existing localStorage doctor img path
+    const docs = JSON.parse(localStorage.getItem('aplus_doctors') || '[]');
+    if (docs.length > 0 && docs[0].id === 'dr_vishal') {
+      docs[0].img = 'assets/doctor_vishal.jpg';
+      localStorage.setItem('aplus_doctors', JSON.stringify(docs));
+    }
   }
 
-  if (!localStorage.getItem('aplus_team')) {
+  if (!localStorage.getItem('aplus_team') || getStoredLen('aplus_team') === 0) {
     const defaultTeam = [
       { id: 'tm_1', name: 'Dr. Meenakshi Sharma', title: 'Senior Endodontist (Root Canal Specialist)', exp: '8+ Years Exp', img: 'assets/gallery_5.jpg' },
       { id: 'tm_2', name: 'Dr. Anuj Singh', title: 'Consultant Orthodontist (Aligners & Braces)', exp: '7+ Years Exp', img: 'assets/gallery_8.jpg' },
@@ -253,7 +268,7 @@ function initStorageSeed() {
     localStorage.setItem('aplus_team', JSON.stringify(defaultTeam));
   }
 
-  if (!localStorage.getItem('aplus_gallery') || JSON.parse(localStorage.getItem('aplus_gallery') || '[]').length < 12) {
+  if (!localStorage.getItem('aplus_gallery') || getStoredLen('aplus_gallery') < 12) {
     const defaultGallery = [
       { id: 'gal_1', img: 'assets/gallery_1.jpg', caption: 'A+ Dental Operatory Suite' },
       { id: 'gal_2', img: 'assets/gallery_2.jpg', caption: '3D Digital Dental Implant Studio' },
@@ -266,12 +281,20 @@ function initStorageSeed() {
       { id: 'gal_9', img: 'assets/gallery_9.jpg', caption: 'Intraoral 3D Scanning Suite' },
       { id: 'gal_10', img: 'assets/gallery_10.jpg', caption: 'Sterile Surgical Operatory' },
       { id: 'gal_11', img: 'assets/gallery_11.jpg', caption: 'CGHS & PM-JAY Patient Lounge' },
-      { id: 'gal_12', img: 'assets/gallery_12.jpg', caption: 'Doctor Speciality Suite' }
+      { id: 'gal_12', img: 'assets/gallery_12.jpg', caption: 'Happy Patient Smile Transformation' }
     ];
     localStorage.setItem('aplus_gallery', JSON.stringify(defaultGallery));
+  } else {
+    const gal = JSON.parse(localStorage.getItem('aplus_gallery') || '[]');
+    const idx = gal.findIndex(g => g.id === 'gal_12');
+    if (idx !== -1) {
+      gal[idx].img = 'assets/gallery_12.jpg';
+      gal[idx].caption = 'Happy Patient Smile Transformation';
+      localStorage.setItem('aplus_gallery', JSON.stringify(gal));
+    }
   }
 
-  if (!localStorage.getItem('aplus_blogs')) {
+  if (!localStorage.getItem('aplus_blogs') || getStoredLen('aplus_blogs') === 0) {
     const defaultBlogs = [
       {
         id: 'blog_1',
@@ -301,33 +324,33 @@ function initStorageSeed() {
         date: 'June 28, 2026',
         img: 'assets/clear_aligners.jpg',
         excerpt: 'Everything you need to know about transparent invisible aligner trays for adults and teens.',
-        content: 'Gone are the days of painful wire tightening and food restrictions. 3D custom clear aligners provide a nearly invisible solution for crowded or gapped teeth. Trays are removable while eating and brushing, making oral hygiene effortless during your smile transformation.'
+        content: 'Clear aligners are custom-molded 3D transparent plastic trays that gradually align crooked teeth into perfect position. They are virtually invisible, removable during meals, and eliminate mouth sores caused by traditional metallic wires.'
       }
     ];
     localStorage.setItem('aplus_blogs', JSON.stringify(defaultBlogs));
   }
 
-  if (!localStorage.getItem('aplus_reviews')) {
+  if (!localStorage.getItem('aplus_reviews') || getStoredLen('aplus_reviews') === 0) {
     const defaultReviews = [
       {
-        id: '1',
+        id: 'rev_1',
         name: 'Rajesh Kumar',
         loc: 'Rajender Nagar, Sahibabad',
-        rating: 5,
+        stars: 5,
         text: 'Got my dental implant done by Dr. Vishal Verma. Completely painless experience! The clinic is super clean and the staff is very supportive. Highly recommended in Sahibabad!'
       },
       {
-        id: '2',
+        id: 'rev_2',
         name: 'Pooja Tyagi',
         loc: 'Shyam Park Ext.',
-        rating: 5,
+        stars: 5,
         text: 'I was terrified of Root Canal Treatment, but Dr. Verma made it so smooth and pain-free. Also benefited from my CGHS empanelment here. Best dental clinic!'
       },
       {
-        id: '3',
+        id: 'rev_3',
         name: 'Anil Sharma',
         loc: 'Indirapuram / Sahibabad',
-        rating: 5,
+        stars: 5,
         text: 'Got clear aligners for my daughter. Result in just 6 months is amazing! Very transparent pricing and modern equipment.'
       }
     ];
