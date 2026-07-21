@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <!-- Gold Metallic Radial Gradient -->
+    <radialGradient id="nabhGoldRadial" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#fffbeb" />
+      <stop offset="25%" stop-color="#fef08a" />
+      <stop offset="50%" stop-color="#eab308" />
+      <stop offset="75%" stop-color="#ca8a04" />
+      <stop offset="100%" stop-color="#713f12" />
+    </radialGradient>
+
+    <!-- Gold Metallic Linear Gradient -->
+    <linearGradient id="nabhGoldLinear" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="30%" stop-color="#eab308" />
+      <stop offset="55%" stop-color="#fffbeb" />
+      <stop offset="80%" stop-color="#ca8a04" />
+      <stop offset="100%" stop-color="#854d0e" />
+    </linearGradient>
+
+    <!-- Drop Shadow Filter -->
+    <filter id="nabhGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.4" />
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#eab308" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <g filter="url(#nabhGlow)">
+    <!-- Scalloped Outer Gold Medallion Ring (32 Points) -->
+    <path d="
+      M 100 10 
+      Q 104 15 109 11 Q 114 17 119 14 Q 123 20 128 18 Q 132 25 137 24 Q 140 31 145 31 Q 148 38 153 39 Q 155 46 159 48 Q 160 55 164 58 Q 164 66 168 69 Q 167 77 170 81 Q 168 89 170 93 Q 167 101 168 105 Q 164 113 164 117 Q 160 124 159 128 Q 155 135 153 139 Q 148 145 145 150 Q 140 155 137 160 Q 132 164 128 169 Q 123 172 119 177 Q 114 179 109 184 Q 104 184 100 189
+      Q 96 184 91 184 Q 86 179 81 177 Q 77 172 72 169 Q 68 164 63 160 Q 60 155 55 150 Q 52 145 47 139 Q 45 135 41 128 Q 40 124 36 117 Q 36 113 32 105 Q 33 101 30 93 Q 32 89 30 81 Q 33 77 32 69 Q 36 66 36 58 Q 40 55 41 48 Q 45 46 47 39 Q 52 38 55 31 Q 60 31 63 24 Q 68 25 72 18 Q 77 20 81 14 Q 86 17 91 11 Q 96 15 100 10 Z" 
+      fill="url(#nabhGoldLinear)" stroke="#fef08a" stroke-width="1.5" />
+
+    <!-- Inner Gold Ring -->
+    <circle cx="100" cy="100" r="76" fill="url(#nabhGoldRadial)" stroke="#713f12" stroke-width="2" />
+    
+    <!-- White Inner Shield Base -->
+    <circle cx="100" cy="100" r="64" fill="#ffffff" stroke="#eab308" stroke-width="2.5" />
+
+    <!-- Circular Curving Text Outer Ring -->
+    <circle cx="100" cy="100" r="54" fill="none" stroke="#ca8a04" stroke-width="1" stroke-dasharray="2 2" />
+
+    <!-- NABH Blue Arc Symbol -->
+    <path d="M 68 85 A 32 32 0 1 1 132 85" fill="none" stroke="#0284c7" stroke-width="12" stroke-linecap="round" />
+    <path d="M 76 85 A 24 24 0 1 1 124 85" fill="none" stroke="#ffffff" stroke-width="3" />
+    
+    <!-- Red Inner Triangle Peak Crest -->
+    <polygon points="100,68 82,95 118,95" fill="#dc2626" />
+    
+    <!-- Top Arc Text -->
+    <text x="100" y="44" font-family="'Outfit', 'Montserrat', sans-serif" font-weight="900" font-size="10.5" fill="#854d0e" text-anchor="middle" letter-spacing="1">NABH ACCREDITED</text>
+    
+    <!-- NABH Bold Center Brand Text -->
+    <text x="100" y="114" font-family="'Outfit', 'Montserrat', sans-serif" font-weight="900" font-size="18" fill="#0284c7" text-anchor="middle" letter-spacing="2">NABH</text>
+
+    <!-- Bottom Curved Text -->
+    <text x="100" y="128" font-family="'Outfit', 'Montserrat', sans-serif" font-weight="800" font-size="9" fill="#991b1b" text-anchor="middle" letter-spacing="1">ACCREDITED CLINIC</text>
+    <text x="100" y="140" font-family="'Outfit', 'Montserrat', sans-serif" font-weight="700" font-size="7.5" fill="#475569" text-anchor="middle" letter-spacing="0.8">QUALITY COUNCIL OF INDIA</text>
+
+    <!-- Side Stars -->
+    <text x="44" y="103" font-family="'Outfit', sans-serif" font-size="12" fill="#ca8a04" text-anchor="middle">★</text>
+    <text x="156" y="103" font-family="'Outfit', sans-serif" font-size="12" fill="#ca8a04" text-anchor="middle">★</text>
+  </g>
+</svg>
