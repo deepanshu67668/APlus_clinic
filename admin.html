@@ -173,7 +173,7 @@
   <!-- Admin PIN Authentication Modal -->
   <div class="pin-modal-overlay" id="pinModal">
     <div class="pin-box">
-      <img src="assets/logo.png" style="width: 70px; height: 70px; object-fit: contain; margin: 0 auto 0.5rem auto; display: block;" alt="A Plus Dental Logo">
+      <img src="assets/logo.png" style="width: 70px; height: 70px; object-fit: contain; border-radius: 50%; background: #ffffff; padding: 4px; border: 3px solid var(--primary); margin: 0 auto 0.75rem auto; display: block; box-shadow: 0 4px 15px rgba(0,0,0,0.15);" alt="A Plus Dental Logo">
       <div style="font-weight: 800; font-size: 1.2rem; color: var(--secondary); font-family: 'Outfit', sans-serif;">A PLUS DENTAL</div>
       <div style="font-size: 0.75rem; color: var(--primary); font-weight: 700; font-family: 'Outfit', sans-serif; margin-bottom: 1rem;">& IMPLANT CENTRE</div>
       <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Enter Admin Security Passcode (Default PIN: <strong>1234</strong>)</p>
@@ -194,7 +194,7 @@
     <aside class="admin-sidebar">
       <div>
         <div class="admin-logo">
-          <img src="assets/logo.png" style="width: 48px; height: 48px; object-fit: contain; border-radius: 50%;" alt="A Plus Dental Logo">
+          <img src="assets/logo.png" style="width: 48px; height: 48px; object-fit: contain; border-radius: 50%; background: #ffffff; padding: 3px; border: 2px solid #38bdf8; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" alt="A Plus Dental Logo">
           <div>
             <div style="font-weight: 800; font-size: 1.05rem; color: white; font-family: 'Outfit', sans-serif;">A PLUS DENTAL</div>
             <div style="font-size: 0.68rem; color: var(--primary-light); font-weight: 700; font-family: 'Outfit', sans-serif;">& IMPLANT CENTRE</div>
@@ -409,7 +409,7 @@
       <!-- Tab 4: Doctor & Team Management -->
       <div id="tab-doctors" class="admin-tab-content" style="display: none;">
         <div class="admin-card">
-          <h3>Add / Update Doctor or Team Profile</h3>
+          <h3 id="docFormHeading">Add / Update Doctor or Team Profile</h3>
           <form id="doctorForm" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
             <input type="hidden" id="editDoctorId">
             
@@ -470,7 +470,10 @@
               <textarea id="docBio" class="form-input" rows="3" placeholder="Enter full doctor biography..."></textarea>
             </div>
             
-            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Doctor / Staff Profile</button>
+            <div style="display: flex; gap: 1rem;">
+              <button type="submit" class="btn btn-primary" id="saveDocBtn"><i class="fa-solid fa-floppy-disk"></i> Save Doctor / Staff Profile</button>
+              <button type="button" onclick="resetDoctorForm()" class="btn btn-outline">Cancel</button>
+            </div>
           </form>
         </div>
 
@@ -518,8 +521,9 @@
       <!-- Tab 5: Gallery Photos Manager (With Native File Upload & URL Input) -->
       <div id="tab-gallery" class="admin-tab-content" style="display: none;">
         <div class="admin-card">
-          <h3>Add Clinic Infrastructure Photo</h3>
+          <h3 id="galFormHeading">Add Clinic Infrastructure Photo</h3>
           <form id="galleryForm" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+            <input type="hidden" id="editGalleryId">
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label"><i class="fa-solid fa-upload"></i> Upload Image File from Computer Gallery</label>
@@ -536,7 +540,10 @@
               <input type="text" id="galCaption" class="form-input" placeholder="e.g. Sterilized Operatory Room" required>
             </div>
             
-            <button type="submit" class="btn btn-primary" style="height: 44px; align-self: flex-start;"><i class="fa-solid fa-plus"></i> Add Photo to Gallery</button>
+            <div style="display: flex; gap: 1rem;">
+              <button type="submit" class="btn btn-primary" id="saveGalBtn" style="height: 44px;"><i class="fa-solid fa-plus"></i> Add Photo to Gallery</button>
+              <button type="button" onclick="resetGalleryForm()" class="btn btn-outline">Cancel</button>
+            </div>
           </form>
         </div>
 
@@ -631,8 +638,9 @@
       <!-- Tab 7: Patient Reviews Manager -->
       <div id="tab-reviews" class="admin-tab-content" style="display: none;">
         <div class="admin-card">
-          <h3>Add / Manage Patient Testimonials</h3>
+          <h3 id="revFormHeading">Add / Manage Patient Testimonials</h3>
           <form id="reviewForm" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+            <input type="hidden" id="editReviewId">
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Patient Name</label>
@@ -651,7 +659,10 @@
               <label class="form-label">Review Comment</label>
               <textarea id="revText" class="form-input" rows="2" placeholder="Enter patient feedback..." required></textarea>
             </div>
-            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add Patient Review</button>
+            <div style="display: flex; gap: 1rem;">
+              <button type="submit" class="btn btn-primary" id="saveRevBtn"><i class="fa-solid fa-plus"></i> Add Patient Review</button>
+              <button type="button" onclick="resetReviewForm()" class="btn btn-outline">Cancel</button>
+            </div>
           </form>
         </div>
 

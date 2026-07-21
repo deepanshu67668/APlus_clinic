@@ -184,11 +184,30 @@
               </div>
               <div class="form-group">
                 <label class="form-label">Preferred Date</label>
-                <input type="date" id="appointmentDate" class="form-input" required>
+                <input type="date" id="appointmentDate" class="form-input" required onchange="checkTimeSlotAvailability()">
               </div>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.9rem;">
+            <div class="form-group">
+              <label class="form-label">Select Time Slot</label>
+              <select id="appointmentTimeSlot" class="form-select" required onchange="checkTimeSlotAvailability()">
+                <option value="09:00 AM - 10:00 AM">09:00 AM - 10:00 AM (Morning)</option>
+                <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM (Morning)</option>
+                <option value="11:00 AM - 12:00 PM">11:00 AM - 12:00 PM (Morning)</option>
+                <option value="12:00 PM - 01:00 PM">12:00 PM - 01:00 PM (Afternoon)</option>
+                <option value="04:00 PM - 05:00 PM">04:00 PM - 05:00 PM (Evening)</option>
+                <option value="05:00 PM - 06:00 PM">05:00 PM - 06:00 PM (Evening)</option>
+                <option value="06:00 PM - 07:00 PM">06:00 PM - 07:00 PM (Evening)</option>
+                <option value="07:00 PM - 08:00 PM">07:00 PM - 08:00 PM (Evening)</option>
+              </select>
+            </div>
+
+            <!-- Real-Time Slot Availability Indicator -->
+            <div id="slotStatusIndicator" style="margin-bottom: 0.85rem; font-size: 0.82rem; font-weight: 700; display: flex; align-items: center; gap: 0.4rem; color: #16a34a; background: rgba(34, 197, 94, 0.1); padding: 0.4rem 0.75rem; border-radius: var(--radius-sm);">
+              <i class="fa-solid fa-circle-check"></i> <span>Slot Available for Booking</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="confirmConsultationBtn" style="width: 100%; margin-top: 0.25rem; padding: 0.9rem;">
               <i class="fa-solid fa-paper-plane"></i> Confirm Consultation
             </button>
           </form>

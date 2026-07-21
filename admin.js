@@ -197,6 +197,8 @@ function renderAppointmentsTables() {
       const safeTreatment = String(a.treatment || 'General Consultation');
       const safeBranch = String(a.branch || 'Rajender Nagar');
       const safeDate = String(a.date || 'N/A');
+      const safeTimeSlot = String(a.timeSlot || a.time || 'Morning');
+      const safeTime = String(a.timestamp || 'Just now');
       const safeSource = String(a.source || 'Website');
       const safeStatus = String(a.status || 'New');
 
@@ -206,8 +208,8 @@ function renderAppointmentsTables() {
           <td><a href="tel:${safePhone}" style="color: var(--primary); font-weight: 700;"><i class="fa-solid fa-phone"></i> ${safePhone}</a></td>
           <td>${safeTreatment}</td>
           <td><span class="badge badge-primary">${safeBranch}</span></td>
-          <td>${safeDate}</td>
-          <td><span style="font-size: 0.78rem; color: var(--text-muted);">${safeSource}</span></td>
+          <td><strong>${safeDate}</strong><br><span style="font-size: 0.75rem; color: var(--primary-dark); font-weight: 600;"><i class="fa-regular fa-clock"></i> ${safeTimeSlot}</span></td>
+          <td><span style="font-size: 0.78rem; color: var(--text-muted);">${safeTime}<br>(${safeSource})</span></td>
           <td>
             <button onclick="toggleAppointmentStatus('${safeId}')" class="badge ${safeStatus === 'Contacted' ? 'badge-cghs' : 'badge-gold'}" style="cursor: pointer; border: none;">
               ${safeStatus}
@@ -359,18 +361,19 @@ function renderTreatmentsTable() {
       <td><span class="badge badge-primary">${t.badge}</span></td>
       <td>${t.price}</td>
       <td>
-        <button onclick="editTreatment('${t.id}')" style="background: transparent; color: var(--primary); font-size: 1.1rem; margin-right: 0.5rem;"><i class="fa-solid fa-pen-to-square"></i></button>
-        <button onclick="deleteTreatment('${t.id}')" style="background: transparent; color: #be123c; font-size: 1.1rem;"><i class="fa-solid fa-trash-can"></i></button>
+        <button onclick="editTreatment('${t.id}')" style="background: transparent; color: var(--primary); font-size: 1.1rem; margin-right: 0.5rem; cursor: pointer;" title="Edit Treatment"><i class="fa-solid fa-pen-to-square"></i></button>
+        <button onclick="deleteTreatment('${t.id}')" style="background: transparent; color: #be123c; font-size: 1.1rem; cursor: pointer;" title="Delete Treatment"><i class="fa-solid fa-trash-can"></i></button>
       </td>
     </tr>
   `).join('');
 }
 
-// Doctor & Team CRUD (With Native File Upload & Role Type Selector)
+// Doctor & Team CRUD (With Native File Upload & Edit Support)
 const docForm = document.getElementById('doctorForm');
 if (docForm) {
   docForm.addEventListener('submit', (e) => {
     e.preventDefault();
+    const editId = document.getElementById('editDoctorId').value;
     const roleType = document.getElementById('docRoleType').value;
     const fileInput = document.getElementById('docFileInput');
     const textImgInput = document.getElementById('docImg').value.trim();
@@ -385,8 +388,8 @@ if (docForm) {
     const saveDoctorObj = (photoUrl) => {
       if (roleType === 'senior') {
         let docs = JSON.parse(localStorage.getItem('aplus_doctors') || '[]');
-        const newDoc = {
-          id: 'doc_' + Date.now(),
+        const docItem = {
+          id: editId || 'doc_' + Date.now(),
           name: name,
           degree: degree,
           badge: badge,
@@ -396,26 +399,36 @@ if (docForm) {
           implants: implants,
           bio: bio || 'Senior Specialist Dental Surgeon at A Plus Dental Clinic.'
         };
-        docs.unshift(newDoc);
+        if (editId) {
+          docs = docs.map(d => d.id === editId ? docItem : d);
+          showToast('Doctor Profile Updated!');
+        } else {
+          docs.unshift(docItem);
+          showToast('Senior Doctor Profile Saved!');
+        }
         localStorage.setItem('aplus_doctors', JSON.stringify(docs));
         renderDoctorsTable();
-        showToast('Senior Doctor Profile Saved!');
       } else {
         let team = JSON.parse(localStorage.getItem('aplus_team') || '[]');
-        const newTeamMember = {
-          id: 'tm_' + Date.now(),
+        const teamItem = {
+          id: editId || 'tm_' + Date.now(),
           name: name,
           title: degree,
           exp: exp,
           img: photoUrl
         };
-        team.unshift(newTeamMember);
+        if (editId) {
+          team = team.map(t => t.id === editId ? teamItem : t);
+          showToast('Team Member Profile Updated!');
+        } else {
+          team.unshift(teamItem);
+          showToast('Associate Team Member Saved!');
+        }
         localStorage.setItem('aplus_team', JSON.stringify(team));
         renderTeamTable();
-        showToast('Associate Team Member Saved!');
       }
 
-      docForm.reset();
+      resetDoctorForm();
       renderStats();
     };
 
@@ -431,6 +444,57 @@ if (docForm) {
       saveDoctorObj('assets/doctor_vishal.jpg');
     }
   });
+}
+
+function resetDoctorForm() {
+  document.getElementById('editDoctorId').value = '';
+  document.getElementById('doctorForm').reset();
+  const heading = document.getElementById('docFormHeading');
+  const btn = document.getElementById('saveDocBtn');
+  if (heading) heading.textContent = 'Add / Update Doctor or Team Profile';
+  if (btn) btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Doctor / Staff Profile';
+}
+
+function editDoctor(id) {
+  const docs = JSON.parse(localStorage.getItem('aplus_doctors') || '[]');
+  const d = docs.find(x => x.id === id);
+  if (!d) return;
+
+  document.getElementById('editDoctorId').value = d.id;
+  document.getElementById('docRoleType').value = 'senior';
+  document.getElementById('docName').value = d.name;
+  document.getElementById('docDegree').value = d.degree;
+  document.getElementById('docBadge').value = d.badge || '';
+  document.getElementById('docExp').value = d.exp;
+  document.getElementById('docPatients').value = d.patients || '';
+  document.getElementById('docImplants').value = d.implants || '';
+  document.getElementById('docBio').value = d.bio || '';
+  document.getElementById('docImg').value = d.img;
+
+  const heading = document.getElementById('docFormHeading');
+  const btn = document.getElementById('saveDocBtn');
+  if (heading) heading.textContent = 'Edit Senior Doctor Profile';
+  if (btn) btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Update Doctor Profile';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function editTeamMember(id) {
+  const team = JSON.parse(localStorage.getItem('aplus_team') || '[]');
+  const t = team.find(x => x.id === id);
+  if (!t) return;
+
+  document.getElementById('editDoctorId').value = t.id;
+  document.getElementById('docRoleType').value = 'team';
+  document.getElementById('docName').value = t.name;
+  document.getElementById('docDegree').value = t.title;
+  document.getElementById('docExp').value = t.exp;
+  document.getElementById('docImg').value = t.img;
+
+  const heading = document.getElementById('docFormHeading');
+  const btn = document.getElementById('saveDocBtn');
+  if (heading) heading.textContent = 'Edit Associate Team Member';
+  if (btn) btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Update Team Member';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function deleteDoctor(id) {
@@ -466,7 +530,8 @@ function renderDoctorsTable() {
       <td>${d.degree}</td>
       <td>${d.exp} Years</td>
       <td>
-        <button onclick="deleteDoctor('${d.id}')" style="background: transparent; color: #be123c; font-size: 1.1rem;"><i class="fa-solid fa-trash-can"></i></button>
+        <button onclick="editDoctor('${d.id}')" style="background: transparent; color: var(--primary); font-size: 1.1rem; margin-right: 0.5rem; cursor: pointer;" title="Edit Doctor"><i class="fa-solid fa-pen-to-square"></i></button>
+        <button onclick="deleteDoctor('${d.id}')" style="background: transparent; color: #be123c; font-size: 1.1rem; cursor: pointer;" title="Delete Doctor"><i class="fa-solid fa-trash-can"></i></button>
       </td>
     </tr>
   `).join('');
@@ -484,53 +549,79 @@ function renderTeamTable() {
       <td>${t.title}</td>
       <td>${t.exp}</td>
       <td>
-        <button onclick="deleteTeamMember('${t.id}')" style="background: transparent; color: #be123c; font-size: 1.1rem;"><i class="fa-solid fa-trash-can"></i></button>
+        <button onclick="editTeamMember('${t.id}')" style="background: transparent; color: var(--primary); font-size: 1.1rem; margin-right: 0.5rem; cursor: pointer;" title="Edit Team Member"><i class="fa-solid fa-pen-to-square"></i></button>
+        <button onclick="deleteTeamMember('${t.id}')" style="background: transparent; color: #be123c; font-size: 1.1rem; cursor: pointer;" title="Delete Member"><i class="fa-solid fa-trash-can"></i></button>
       </td>
     </tr>
   `).join('');
 }
 
-// Gallery CRUD with Native File Upload Support
+// Gallery CRUD with Edit Support
 const galForm = document.getElementById('galleryForm');
 if (galForm) {
   galForm.addEventListener('submit', (e) => {
     e.preventDefault();
     let gal = JSON.parse(localStorage.getItem('aplus_gallery') || '[]');
+    const editId = document.getElementById('editGalleryId').value;
     const fileInput = document.getElementById('galFileInput');
     const textImgInput = document.getElementById('galImg').value.trim();
     const caption = document.getElementById('galCaption').value.trim();
 
+    const saveGalItem = (imgSrc) => {
+      const item = {
+        id: editId || 'gal_' + Date.now(),
+        img: imgSrc,
+        caption: caption
+      };
+      if (editId) {
+        gal = gal.map(g => g.id === editId ? item : g);
+        showToast('Gallery Photo Updated!');
+      } else {
+        gal.unshift(item);
+        showToast('Gallery Photo Added!');
+      }
+      localStorage.setItem('aplus_gallery', JSON.stringify(gal));
+      resetGalleryForm();
+      renderGalleryTable();
+    };
+
     if (fileInput && fileInput.files && fileInput.files[0]) {
       const reader = new FileReader();
       reader.onload = function(evt) {
-        const base64Img = evt.target.result;
-        const item = {
-          id: 'gal_' + Date.now(),
-          img: base64Img,
-          caption: caption
-        };
-        gal.unshift(item);
-        localStorage.setItem('aplus_gallery', JSON.stringify(gal));
-        galForm.reset();
-        renderGalleryTable();
-        showToast('Photo Uploaded Successfully!');
+        saveGalItem(evt.target.result);
       };
       reader.readAsDataURL(fileInput.files[0]);
     } else if (textImgInput) {
-      const item = {
-        id: 'gal_' + Date.now(),
-        img: textImgInput,
-        caption: caption
-      };
-      gal.unshift(item);
-      localStorage.setItem('aplus_gallery', JSON.stringify(gal));
-      galForm.reset();
-      renderGalleryTable();
-      showToast('Gallery Photo Added!');
+      saveGalItem(textImgInput);
     } else {
       showToast('Please select a photo file or enter an image URL!', true);
     }
   });
+}
+
+function resetGalleryForm() {
+  document.getElementById('editGalleryId').value = '';
+  document.getElementById('galleryForm').reset();
+  const heading = document.getElementById('galFormHeading');
+  const btn = document.getElementById('saveGalBtn');
+  if (heading) heading.textContent = 'Add Clinic Infrastructure Photo';
+  if (btn) btn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Photo to Gallery';
+}
+
+function editGalleryItem(id) {
+  const gal = JSON.parse(localStorage.getItem('aplus_gallery') || '[]');
+  const g = gal.find(x => x.id === id);
+  if (!g) return;
+
+  document.getElementById('editGalleryId').value = g.id;
+  document.getElementById('galImg').value = g.img;
+  document.getElementById('galCaption').value = g.caption;
+
+  const heading = document.getElementById('galFormHeading');
+  const btn = document.getElementById('saveGalBtn');
+  if (heading) heading.textContent = 'Edit Clinic Photo';
+  if (btn) btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Update Photo';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function deleteGalleryItem(id) {
@@ -551,7 +642,8 @@ function renderGalleryTable() {
       <td><img src="${g.img}" style="width: 80px; height: 50px; object-fit: cover; border-radius: 6px;"></td>
       <td>${g.caption}</td>
       <td>
-        <button onclick="deleteGalleryItem('${g.id}')" style="background: transparent; color: #be123c; font-size: 1.1rem;"><i class="fa-solid fa-trash-can"></i></button>
+        <button onclick="editGalleryItem('${g.id}')" style="background: transparent; color: var(--primary); font-size: 1.1rem; margin-right: 0.5rem; cursor: pointer;" title="Edit Photo"><i class="fa-solid fa-pen-to-square"></i></button>
+        <button onclick="deleteGalleryItem('${g.id}')" style="background: transparent; color: #be123c; font-size: 1.1rem; cursor: pointer;" title="Delete Photo"><i class="fa-solid fa-trash-can"></i></button>
       </td>
     </tr>
   `).join('');
@@ -673,35 +765,69 @@ function renderBlogsTable() {
       <td>${b.author}</td>
       <td>${b.date}</td>
       <td>
-        <button onclick="editBlog('${b.id}')" style="background: transparent; color: var(--primary); font-size: 1.1rem; margin-right: 0.5rem;"><i class="fa-solid fa-pen-to-square"></i></button>
-        <button onclick="deleteBlog('${b.id}')" style="background: transparent; color: #be123c; font-size: 1.1rem;"><i class="fa-solid fa-trash-can"></i></button>
+        <button onclick="editBlog('${b.id}')" style="background: transparent; color: var(--primary); font-size: 1.1rem; margin-right: 0.5rem; cursor: pointer;" title="Edit Article"><i class="fa-solid fa-pen-to-square"></i></button>
+        <button onclick="deleteBlog('${b.id}')" style="background: transparent; color: #be123c; font-size: 1.1rem; cursor: pointer;" title="Delete Article"><i class="fa-solid fa-trash-can"></i></button>
       </td>
     </tr>
   `).join('');
 }
 
-// Reviews CRUD
+// Reviews CRUD with Edit Support
 const revForm = document.getElementById('reviewForm');
 if (revForm) {
   revForm.addEventListener('submit', (e) => {
     e.preventDefault();
     let revs = JSON.parse(localStorage.getItem('aplus_reviews') || '[]');
+    const editId = document.getElementById('editReviewId').value;
 
     const item = {
-      id: 'rev_' + Date.now(),
+      id: editId || 'rev_' + Date.now(),
       name: document.getElementById('revName').value.trim(),
       loc: document.getElementById('revLoc').value.trim(),
       rating: parseInt(document.getElementById('revRating').value, 10) || 5,
       text: document.getElementById('revText').value.trim()
     };
 
-    revs.unshift(item);
+    if (editId) {
+      revs = revs.map(r => r.id === editId ? item : r);
+      showToast('Patient Review Updated!');
+    } else {
+      revs.unshift(item);
+      showToast('Patient Review Added!');
+    }
+
     localStorage.setItem('aplus_reviews', JSON.stringify(revs));
-    revForm.reset();
+    resetReviewForm();
     renderReviewsTable();
     renderStats();
-    showToast('Patient Review Added!');
   });
+}
+
+function resetReviewForm() {
+  document.getElementById('editReviewId').value = '';
+  document.getElementById('reviewForm').reset();
+  const heading = document.getElementById('revFormHeading');
+  const btn = document.getElementById('saveRevBtn');
+  if (heading) heading.textContent = 'Add / Manage Patient Testimonials';
+  if (btn) btn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Patient Review';
+}
+
+function editReview(id) {
+  const revs = JSON.parse(localStorage.getItem('aplus_reviews') || '[]');
+  const r = revs.find(x => x.id === id);
+  if (!r) return;
+
+  document.getElementById('editReviewId').value = r.id;
+  document.getElementById('revName').value = r.name;
+  document.getElementById('revLoc').value = r.loc;
+  document.getElementById('revRating').value = r.rating || 5;
+  document.getElementById('revText').value = r.text;
+
+  const heading = document.getElementById('revFormHeading');
+  const btn = document.getElementById('saveRevBtn');
+  if (heading) heading.textContent = 'Edit Patient Review';
+  if (btn) btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Update Review';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function deleteReview(id) {
@@ -725,7 +851,8 @@ function renderReviewsTable() {
       <td>${r.rating} ★</td>
       <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">"${r.text}"</td>
       <td>
-        <button onclick="deleteReview('${r.id}')" style="background: transparent; color: #be123c; font-size: 1.1rem;"><i class="fa-solid fa-trash-can"></i></button>
+        <button onclick="editReview('${r.id}')" style="background: transparent; color: var(--primary); font-size: 1.1rem; margin-right: 0.5rem; cursor: pointer;" title="Edit Review"><i class="fa-solid fa-pen-to-square"></i></button>
+        <button onclick="deleteReview('${r.id}')" style="background: transparent; color: #be123c; font-size: 1.1rem; cursor: pointer;" title="Delete Review"><i class="fa-solid fa-trash-can"></i></button>
       </td>
     </tr>
   `).join('');

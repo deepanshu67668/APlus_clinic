@@ -599,6 +599,54 @@ function closeTreatmentModal() {
   if (modal) modal.classList.remove('active');
 }
 
+// Interactive Calendar & Time Slot Availability Checking Guard
+function checkTimeSlotAvailability() {
+  const dateInput = document.getElementById('appointmentDate');
+  const slotSelect = document.getElementById('appointmentTimeSlot');
+  const branchSelect = document.getElementById('preferredBranch');
+  const indicator = document.getElementById('slotStatusIndicator');
+  const btn = document.getElementById('confirmConsultationBtn');
+
+  if (!dateInput || !slotSelect || !indicator) return true;
+
+  const date = dateInput.value;
+  const slot = slotSelect.value;
+  const branch = branchSelect ? branchSelect.value : 'Rajender Nagar';
+
+  const list = JSON.parse(localStorage.getItem('aplus_appointments') || '[]');
+
+  // Disable options in slot dropdown that are already booked for this date and branch
+  Array.from(slotSelect.options).forEach(opt => {
+    const optVal = opt.value;
+    const isOptBooked = list.some(a => a && a.date === date && a.branch === branch && (a.timeSlot === optVal || a.time === optVal));
+    if (isOptBooked) {
+      opt.disabled = true;
+      if (!opt.textContent.includes('ALREADY BOOKED')) {
+        opt.textContent = `${optVal} — (BOOKED ❌)`;
+      }
+    } else {
+      opt.disabled = false;
+      opt.textContent = optVal;
+    }
+  });
+
+  const isBooked = list.some(a => a && a.date === date && a.branch === branch && (a.timeSlot === slot || a.time === slot));
+
+  if (isBooked) {
+    indicator.style.color = '#dc2626';
+    indicator.style.background = 'rgba(220, 38, 38, 0.1)';
+    indicator.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> <span>Time slot <strong>${slot}</strong> is ALREADY BOOKED for ${branch} on ${date}. Please choose another slot!</span>`;
+    if (btn) btn.disabled = true;
+    return false;
+  } else {
+    indicator.style.color = '#16a34a';
+    indicator.style.background = 'rgba(34, 197, 94, 0.1)';
+    indicator.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>Time slot <strong>${slot}</strong> is AVAILABLE for ${branch} on ${date}!</span>`;
+    if (btn) btn.disabled = false;
+    return true;
+  }
+}
+
 // Form Handlers
 function initFormHandlers() {
   initCorporateCampForm();
@@ -613,15 +661,32 @@ function initFormHandlers() {
       const branch = document.getElementById('preferredBranch').value;
       const treatment = document.getElementById('selectedTreatment').value;
       const date = document.getElementById('appointmentDate').value;
+      const timeSlotSelect = document.getElementById('appointmentTimeSlot');
+      const timeSlot = timeSlotSelect ? timeSlotSelect.value : '09:00 AM - 10:00 AM';
 
-      saveAppointment({ name, phone, branch, treatment, date, source: 'Hero Booking Form' });
+      if (!checkTimeSlotAvailability()) {
+        showToast('Selected time slot is already booked! Please select an available slot.', true);
+        return;
+      }
 
-      showToast(`Thank you ${name}! Appointment booked for ${date} at ${branch} branch.`);
+      saveAppointment({
+        name,
+        phone,
+        branch,
+        treatment,
+        date,
+        timeSlot,
+        timestamp: new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }),
+        source: 'Hero Booking Form'
+      });
+
+      showToast(`Thank you ${name}! Appointment booked for ${date} (${timeSlot}) at ${branch} branch.`);
       heroForm.reset();
       initDateInput();
+      checkTimeSlotAvailability();
 
       setTimeout(() => {
-        const message = `Hello A Plus Dental Clinic! I would like to confirm my appointment booking:%0A%0A- *Name*: ${encodeURIComponent(name)}%0A- *Phone*: ${phone}%0A- *Branch*: ${branch}%0A- *Treatment*: ${encodeURIComponent(treatment)}%0A- *Date*: ${date}`;
+        const message = `Hello A Plus Dental Clinic! I would like to confirm my appointment booking:%0A%0A- *Name*: ${encodeURIComponent(name)}%0A- *Phone*: ${phone}%0A- *Branch*: ${branch}%0A- *Treatment*: ${encodeURIComponent(treatment)}%0A- *Date*: ${date}%0A- *Time Slot*: ${encodeURIComponent(timeSlot)}`;
         window.open(`https://wa.me/917838697614?text=${message}`, '_blank');
       }, 1500);
     });
@@ -638,7 +703,16 @@ function initFormHandlers() {
       const branch = document.getElementById('popBranch').value;
       const date = new Date().toISOString().split('T')[0];
 
-      saveAppointment({ name, phone, branch, treatment, date, source: 'Auto Lead Popup (30% OFF)' });
+      saveAppointment({
+        name,
+        phone,
+        branch,
+        treatment,
+        date,
+        timeSlot: '04:00 PM - 05:00 PM',
+        timestamp: new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }),
+        source: 'Auto Lead Popup (30% OFF)'
+      });
 
       closeAutoLeadModal();
       showToast(`Welcome ${name}! Your 30% discount consultation request is received.`);
@@ -655,7 +729,8 @@ function saveAppointment(apt) {
   let list = JSON.parse(localStorage.getItem('aplus_appointments') || '[]');
   list = Array.isArray(list) ? list.filter(a => a && typeof a === 'object' && a.name && !['Rahul Sharma', 'Pooja Tyagi', 'Anil Verma', 'Kavita Gupta'].includes(a.name)) : [];
   apt.id = Date.now().toString();
-  apt.timestamp = new Date().toLocaleString();
+  apt.timestamp = apt.timestamp || new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+  apt.timeSlot = apt.timeSlot || '09:00 AM - 10:00 AM';
   apt.status = 'New';
   list.unshift(apt);
   localStorage.setItem('aplus_appointments', JSON.stringify(list));
@@ -668,6 +743,7 @@ function initDateInput() {
     const today = new Date().toISOString().split('T')[0];
     dateInput.min = today;
     dateInput.value = today;
+    checkTimeSlotAvailability();
   }
 }
 
