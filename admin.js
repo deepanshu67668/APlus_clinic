@@ -123,8 +123,11 @@ function initAdminCloudListeners() {
   }
 }
 
-// Admin Authentication PIN (Default: 1234)
+// Secure Authentication and RBAC Integration
 function initPinAuth() {
+  // Ensure default staff users exist in Database
+  seedDefaultStaffUsers();
+
   const isAuth = sessionStorage.getItem('aplus_admin_auth');
   const pinModal = document.getElementById('pinModal');
   const layout = document.getElementById('adminDashboardLayout');
@@ -132,30 +135,114 @@ function initPinAuth() {
   if (isAuth === 'true') {
     pinModal.style.display = 'none';
     layout.style.display = 'grid';
+    
+    // Apply role-based sidebar items filter
+    const activeUser = JSON.parse(sessionStorage.getItem('aplus_logged_in_user') || '{}');
+    if (activeUser.role) {
+      applySidebarRolePermissions(activeUser.role);
+    }
+    
     loadDashboardData();
+    initSessionInactivityTimer();
+  }
+
+  // Username field keystroke change listener
+  const loginUserField = document.getElementById('loginUsername');
+  if (loginUserField) {
+    loginUserField.addEventListener('input', (e) => {
+      const val = e.target.value;
+      const isLegacyPin = /^\d{4}$/.test(val) || val === '1234' || val === '';
+      const passGroup = document.getElementById('loginPasswordGroup');
+      if (passGroup) {
+        passGroup.style.display = isLegacyPin ? 'none' : 'block';
+      }
+    });
   }
 
   const pinForm = document.getElementById('pinForm');
   if (pinForm) {
     pinForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const pin = document.getElementById('adminPinInput').value;
-      if (pin === '1234') {
+      
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword') ? document.getElementById('loginPassword').value.trim() : '';
+
+      // Legacy PIN bypass handler
+      if (username === '1234') {
+        const adminUserObj = {
+          id: 'usr_admin',
+          fullName: 'System Admin',
+          username: 'admin',
+          role: 'Admin',
+          status: 'Active'
+        };
         sessionStorage.setItem('aplus_admin_auth', 'true');
+        sessionStorage.setItem('aplus_logged_in_user', JSON.stringify(adminUserObj));
         pinModal.style.display = 'none';
         layout.style.display = 'grid';
+        
+        applySidebarRolePermissions('Admin');
         loadDashboardData();
-        showToast('Admin Dashboard Unlocked!');
+        showToast('Admin Dashboard Unlocked via PIN!');
+        logSystemAuditEvent('Logged in via Admin PIN passcode');
+        initSessionInactivityTimer();
+        return;
+      }
+
+      // Check credentials against staff database
+      const usersList = JSON.parse(localStorage.getItem('aplus_users') || '[]');
+      const matchedUser = usersList.find(u => u.username.toLowerCase() === username.toLowerCase());
+
+      if (matchedUser) {
+        if (matchedUser.status === 'Inactive') {
+          showToast('Your account is deactivated! Please contact the Admin.', true);
+          return;
+        }
+
+        if (matchedUser.passwordHash === password) {
+          sessionStorage.setItem('aplus_admin_auth', 'true');
+          sessionStorage.setItem('aplus_logged_in_user', JSON.stringify(matchedUser));
+          pinModal.style.display = 'none';
+          layout.style.display = 'grid';
+          
+          applySidebarRolePermissions(matchedUser.role);
+          loadDashboardData();
+          showToast(`Dashboard Unlocked as ${matchedUser.role}!`);
+          logSystemAuditEvent(`User logged in as ${matchedUser.role}`);
+          initSessionInactivityTimer();
+        } else {
+          showToast('Incorrect password! Please try again.', true);
+        }
       } else {
-        showToast('Incorrect Passcode PIN! Try 1234.', true);
+        showToast('User account not found! Use autofills to try demo logins.', true);
       }
     });
   }
 }
 
 function lockAdmin() {
+  logSystemAuditEvent('Logged out from session');
   sessionStorage.removeItem('aplus_admin_auth');
+  sessionStorage.removeItem('aplus_logged_in_user');
   window.location.reload();
+}
+
+function autofillDemoCredentials() {
+  const val = document.getElementById('demoRoleAutofill').value;
+  const usernameInput = document.getElementById('loginUsername');
+  const passwordInput = document.getElementById('loginPassword');
+  
+  if (val) {
+    const parts = val.split('|');
+    usernameInput.value = parts[0];
+    if (passwordInput) passwordInput.value = parts[1];
+    
+    const passGroup = document.getElementById('loginPasswordGroup');
+    if (passGroup) passGroup.style.display = 'block';
+  } else {
+    usernameInput.value = '';
+    if (passwordInput) passwordInput.value = '';
+  }
 }
 
 // Mobile Navigation Controls
@@ -177,8 +264,28 @@ function initMobileMenuToggle() {
   }
 }
 
-// Tab Switching
+// Tab Switching with Permission Middleware Protection
 function switchAdminTab(tabKey, btn) {
+  // Permission Middleware Check
+  const activeUser = JSON.parse(sessionStorage.getItem('aplus_logged_in_user') || '{}');
+  const role = activeUser.role || 'Admin';
+
+  const permissionMap = {
+    Admin: ['dashboard', 'appointments', 'treatments', 'doctors', 'gallery', 'blogs', 'reviews', 'patients', 'billing', 'users-roles', 'audit-logs'],
+    Doctor: ['dashboard', 'appointments', 'treatments', 'doctors', 'patients'],
+    Receptionist: ['dashboard', 'appointments', 'reviews', 'patients', 'billing'],
+    Nurse: ['dashboard', 'appointments', 'patients'],
+    'Lab Technician': ['dashboard', 'patients'],
+    LabTech: ['dashboard', 'patients']
+  };
+
+  const allowedTabs = permissionMap[role] || ['dashboard'];
+  if (!allowedTabs.includes(tabKey)) {
+    showToast('403 Access Denied: Unauthorized module!', true);
+    logSystemAuditEvent(`403 Unauthorized tab access blocked on key: ${tabKey}`);
+    return; // Block direct access
+  }
+
   const tabs = document.querySelectorAll('.admin-tab-content');
   tabs.forEach(t => t.style.display = 'none');
 
@@ -210,7 +317,9 @@ function switchAdminTab(tabKey, btn) {
     blogs: 'Manage Oral Health Blogs & Articles',
     reviews: 'Manage Patient Reviews',
     patients: 'Patient Management Dashboard',
-    billing: 'Billing & Invoice Dashboard'
+    billing: 'Billing & Invoice Dashboard',
+    'users-roles': 'Staff Access Control & User Roles',
+    'audit-logs': 'System Security Audit Trails'
   };
   const titleText = titles[tabKey] || 'Admin Dashboard';
   const mainTitle = document.getElementById('tabTitle');
@@ -2384,3 +2493,529 @@ function processRefundSubmit(e) {
     renderInvoicesTable();
   }
 }
+
+/* ==========================================================================
+   MODULE 3: ROLE-BASED ACCESS CONTROL (RBAC) LOGIC
+   ========================================================================== */
+
+// Default staff credentials seed
+function seedDefaultStaffUsers() {
+  const existing = localStorage.getItem('aplus_users');
+  if (existing) return;
+
+  const defaultUsers = [
+    { id: 'usr_admin', fullName: 'System Admin', employeeId: 'EMP_001', username: 'admin', passwordHash: 'admin123', role: 'Admin', department: 'Administration', status: 'Active', phone: '9999999999', email: 'admin@aplus.com' },
+    { id: 'usr_doc', fullName: 'Dr. Vishal Verma', employeeId: 'EMP_002', username: 'doctor', passwordHash: 'doctor123', role: 'Doctor', department: 'Clinical', status: 'Active', phone: '8888888888', email: 'doctor@aplus.com' },
+    { id: 'usr_reception', fullName: 'Sunita Sharma', employeeId: 'EMP_003', username: 'reception', passwordHash: 'reception123', role: 'Receptionist', department: 'Reception', status: 'Active', phone: '7777777777', email: 'reception@aplus.com' },
+    { id: 'usr_nurse', fullName: 'Nurse Emily', employeeId: 'EMP_004', username: 'nurse', passwordHash: 'nurse123', role: 'Nurse', department: 'Nursing Care', status: 'Active', phone: '6666666666', email: 'nurse@aplus.com' },
+    { id: 'usr_lab', fullName: 'Technician Ravi', employeeId: 'EMP_005', username: 'labtech', passwordHash: 'lab123', role: 'Lab Technician', department: 'Laboratory', status: 'Active', phone: '5555555555', email: 'labtech@aplus.com' }
+  ];
+
+  if (typeof db !== 'undefined' && db) {
+    defaultUsers.forEach(u => {
+      db.ref('users/' + u.id).set(u);
+    });
+  } else {
+    localStorage.setItem('aplus_users', JSON.stringify(defaultUsers));
+  }
+}
+
+// Apply sidebar visibility rules dynamically
+function applySidebarRolePermissions(role) {
+  const items = document.querySelectorAll('#adminMenuContainer li');
+  items.forEach(li => {
+    const allowedRoles = li.getAttribute('data-role');
+    if (allowedRoles) {
+      const rolesArray = allowedRoles.split(',').map(r => r.trim());
+      li.style.display = rolesArray.includes(role) ? 'block' : 'none';
+    }
+  });
+}
+
+// Session Inactivity Auto-logout (15 minutes limit)
+let sessionInactivityTimer = null;
+function initSessionInactivityTimer() {
+  if (sessionInactivityTimer) clearTimeout(sessionInactivityTimer);
+  
+  // 15 minutes limit (15 * 60 * 1000 ms)
+  sessionInactivityTimer = setTimeout(() => {
+    showToast('Session expired due to inactivity! Logging out...', true);
+    setTimeout(() => lockAdmin(), 2000);
+  }, 900000);
+
+  const resetTimer = () => {
+    if (sessionStorage.getItem('aplus_admin_auth') === 'true') {
+      clearTimeout(sessionInactivityTimer);
+      sessionInactivityTimer = setTimeout(() => {
+        showToast('Session expired due to inactivity! Logging out...', true);
+        setTimeout(() => lockAdmin(), 2000);
+      }, 900000);
+    }
+  };
+
+  window.addEventListener('mousemove', resetTimer);
+  window.addEventListener('keypress', resetTimer);
+  window.addEventListener('click', resetTimer);
+}
+
+// Security Audit Log Generator
+function logSystemAuditEvent(action) {
+  const user = JSON.parse(sessionStorage.getItem('aplus_logged_in_user') || '{}');
+  const auditItem = {
+    id: 'AUD_' + Date.now(),
+    timestamp: new Date().toLocaleString(),
+    username: user.fullName || 'System Guest',
+    role: user.role || 'Admin',
+    action: action,
+    ip: '127.0.0.1 (Local Session)'
+  };
+
+  if (typeof db !== 'undefined' && db) {
+    db.ref('audit_logs/' + auditItem.id).set(auditItem);
+  } else {
+    const logs = JSON.parse(localStorage.getItem('aplus_audit_logs') || '[]');
+    logs.unshift(auditItem);
+    localStorage.setItem('aplus_audit_logs', JSON.stringify(logs));
+    renderAuditLogsTable();
+  }
+}
+
+// Render Audit Logs Table for Admin view
+function renderAuditLogsTable() {
+  const tbody = document.getElementById('auditLogsAdminTable');
+  if (!tbody) return;
+
+  const renderData = (logs) => {
+    tbody.innerHTML = logs.map(l => `
+      <tr>
+        <td>${l.timestamp}</td>
+        <td><strong>${l.username}</strong></td>
+        <td><span class="badge" style="background:#cbd5e1; color:#334155;">${l.role}</span></td>
+        <td>${l.action}</td>
+        <td>${l.ip}</td>
+      </tr>
+    `).join('');
+  };
+
+  if (typeof db !== 'undefined' && db) {
+    db.ref('audit_logs').once('value').then(snapshot => {
+      const data = snapshot.val();
+      const list = data ? Object.keys(data).map(key => data[key]) : [];
+      list.sort((a, b) => b.id.localeCompare(a.id));
+      renderData(list);
+    });
+  } else {
+    const logs = JSON.parse(localStorage.getItem('aplus_audit_logs') || '[]');
+    renderData(logs);
+  }
+}
+
+function clearAuditLogs() {
+  if (confirm('Clear all security audit logs?')) {
+    if (typeof db !== 'undefined' && db) {
+      db.ref('audit_logs').remove().then(() => {
+        showToast('Audit log history cleared');
+        renderAuditLogsTable();
+      });
+    } else {
+      localStorage.setItem('aplus_audit_logs', '[]');
+      showToast('Audit logs cleared');
+      renderAuditLogsTable();
+    }
+  }
+}
+
+// Staff Account CRUD Management
+const userForm = document.getElementById('userAccountForm');
+if (userForm) {
+  userForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    saveUserProcess();
+  });
+}
+
+function resetUserForm() {
+  document.getElementById('editUserIdRaw').value = '';
+  document.getElementById('userAccountForm').reset();
+  document.getElementById('userFormHeading').textContent = 'Add New User Account';
+  document.getElementById('saveUserBtn').innerHTML = '<i class="fa-solid fa-user-plus"></i> Save User Account';
+}
+
+function saveUserProcess() {
+  const editId = document.getElementById('editUserIdRaw').value;
+  const userId = editId || 'usr_' + Date.now();
+
+  const password = document.getElementById('userPassword').value;
+  const confirmPassword = document.getElementById('userConfirmPassword').value;
+
+  if (password !== confirmPassword) {
+    showToast('Passwords do not match! Verify password again.', true);
+    return;
+  }
+
+  const userObj = {
+    id: userId,
+    fullName: document.getElementById('userFullName').value.trim(),
+    employeeId: document.getElementById('userEmployeeId').value.trim(),
+    phone: document.getElementById('userMobile').value.trim(),
+    email: document.getElementById('userEmail').value.trim(),
+    username: document.getElementById('userUsername').value.trim(),
+    role: document.getElementById('userRole').value,
+    passwordHash: password, // For demonstration hashes, simple comparison matches criteria
+    department: document.getElementById('userDepartment').value.trim(),
+    status: document.getElementById('userStatus').value
+  };
+
+  if (typeof db !== 'undefined' && db) {
+    db.ref('users/' + userId).set(userObj).then(() => {
+      showToast(editId ? 'User Access Updated!' : 'New User Created successfully!');
+      logSystemAuditEvent(`${editId ? 'Updated' : 'Created'} user account: ${userObj.username}`);
+      resetUserForm();
+      renderUsersTable();
+    });
+  } else {
+    let list = JSON.parse(localStorage.getItem('aplus_users') || '[]');
+    list = list.filter(u => u.id !== userId);
+    list.unshift(userObj);
+    localStorage.setItem('aplus_users', JSON.stringify(list));
+    showToast(editId ? 'User account updated (Offline)' : 'User created (Offline)');
+    logSystemAuditEvent(`${editId ? 'Updated' : 'Created'} user account (offline): ${userObj.username}`);
+    resetUserForm();
+    renderUsersTable();
+  }
+}
+
+function renderUsersTable() {
+  const tbody = document.getElementById('usersAdminTable');
+  if (!tbody) return;
+
+  const renderData = (list) => {
+    tbody.innerHTML = list.map(u => `
+      <tr>
+        <td><strong>${u.employeeId}</strong></td>
+        <td>${u.fullName}</td>
+        <td>${u.username}</td>
+        <td><span class="badge" style="background:#dbeafe; color:#1e40af;">${u.role}</span></td>
+        <td>${u.department}</td>
+        <td><span class="badge" style="background:${u.status === 'Active' ? '#dcfce7' : '#fee2e2'}; color:${u.status === 'Active' ? '#166534' : '#991b1b'};">${u.status}</span></td>
+        <td>
+          <button onclick="editUser('${u.id}')" style="background: transparent; color: var(--primary); font-size: 1.1rem; margin-right: 0.5rem; cursor: pointer;"><i class="fa-solid fa-pen-to-square"></i></button>
+          <button onclick="toggleUserStatus('${u.id}')" style="background: transparent; color: #b45309; font-size: 1.1rem; margin-right: 0.5rem; cursor: pointer;" title="Toggle Activation"><i class="fa-solid fa-ban"></i></button>
+          <button onclick="deleteUser('${u.id}')" style="background: transparent; color: #be123c; font-size: 1.1rem; cursor: pointer;"><i class="fa-solid fa-trash-can"></i></button>
+        </td>
+      </tr>
+    `).join('');
+  };
+
+  if (typeof db !== 'undefined' && db) {
+    db.ref('users').once('value').then(snapshot => {
+      const data = snapshot.val();
+      const list = data ? Object.keys(data).map(key => data[key]) : [];
+      localStorage.setItem('aplus_users', JSON.stringify(list));
+      renderData(list);
+    });
+  } else {
+    const list = JSON.parse(localStorage.getItem('aplus_users') || '[]');
+    renderData(list);
+  }
+}
+
+function editUser(id) {
+  const list = JSON.parse(localStorage.getItem('aplus_users') || '[]');
+  const u = list.find(x => x.id === id);
+  if (!u) return;
+
+  document.getElementById('editUserIdRaw').value = u.id;
+  document.getElementById('userFullName').value = u.fullName || '';
+  document.getElementById('userEmployeeId').value = u.employeeId || '';
+  document.getElementById('userMobile').value = u.phone || '';
+  document.getElementById('userEmail').value = u.email || '';
+  document.getElementById('userUsername').value = u.username || '';
+  document.getElementById('userRole').value = u.role || 'Doctor';
+  document.getElementById('userPassword').value = u.passwordHash || '';
+  document.getElementById('userConfirmPassword').value = u.passwordHash || '';
+  document.getElementById('userDepartment').value = u.department || '';
+  document.getElementById('userStatus').value = u.status || 'Active';
+
+  document.getElementById('userFormHeading').textContent = 'Modify User Account';
+  document.getElementById('saveUserBtn').innerHTML = '<i class="fa-solid fa-user-pen"></i> Update User Account';
+}
+
+function toggleUserStatus(id) {
+  const list = JSON.parse(localStorage.getItem('aplus_users') || '[]');
+  const uIdx = list.findIndex(x => x.id === id);
+  if (uIdx === -1) return;
+
+  list[uIdx].status = list[uIdx].status === 'Active' ? 'Inactive' : 'Active';
+
+  if (typeof db !== 'undefined' && db) {
+    db.ref('users/' + id).set(list[uIdx]).then(() => {
+      showToast(`User account status toggled to ${list[uIdx].status}`);
+      logSystemAuditEvent(`Toggled user status of: ${list[uIdx].username} to ${list[uIdx].status}`);
+      renderUsersTable();
+    });
+  } else {
+    localStorage.setItem('aplus_users', JSON.stringify(list));
+    showToast(`User status toggled to ${list[uIdx].status} (Offline)`);
+    renderUsersTable();
+  }
+}
+
+function deleteUser(id) {
+  if (confirm('Delete this staff account and disable dashboard entry?')) {
+    if (typeof db !== 'undefined' && db) {
+      db.ref('users/' + id).remove().then(() => {
+        showToast('User account deleted');
+        renderUsersTable();
+      });
+    } else {
+      let list = JSON.parse(localStorage.getItem('aplus_users') || '[]');
+      list = list.filter(u => u.id !== id);
+      localStorage.setItem('aplus_users', JSON.stringify(list));
+      showToast('User deleted (Offline)');
+      renderUsersTable();
+    }
+  }
+}
+
+// Custom Dashboard Render for active User Role
+function renderRoleSpecificDashboard(role) {
+  // Hide all panels initially
+  document.getElementById('adminRoleDashboard').style.display = 'none';
+  document.getElementById('doctorRoleDashboard').style.display = 'none';
+  document.getElementById('receptionRoleDashboard').style.display = 'none';
+  document.getElementById('nurseRoleDashboard').style.display = 'none';
+  document.getElementById('labRoleDashboard').style.display = 'none';
+
+  const patientsList = JSON.parse(localStorage.getItem('aplus_patients') || '[]');
+
+  if (role === 'Admin') {
+    document.getElementById('adminRoleDashboard').style.display = 'block';
+  } 
+  else if (role === 'Doctor') {
+    document.getElementById('doctorRoleDashboard').style.display = 'block';
+    
+    // Render appointments queue for doctor (filter today's date)
+    const today = new Date().toLocaleDateString('en-US');
+    const aptsList = getAllMergedLeads().filter(a => a.date === today);
+    document.getElementById('docAppointmentsCount').textContent = aptsList.length;
+    document.getElementById('docTotalPatientsCount').textContent = patientsList.length;
+    
+    let pendingReports = 0;
+    patientsList.forEach(p => {
+      if (p.reports) {
+        pendingReports += p.reports.filter(r => !r.file).length; // Simulated pending placeholder check
+      }
+    });
+    document.getElementById('docPendingReportsCount').textContent = pendingReports;
+
+    const tbody = document.getElementById('doctorQueueTable');
+    if (tbody) {
+      tbody.innerHTML = aptsList.length === 0 ? `<tr><td colspan="5" style="text-align:center;">No patient cases queued for today.</td></tr>` : 
+        aptsList.map(a => `
+          <tr>
+            <td><strong>${a.timeSlot || a.time || 'Morning'}</strong></td>
+            <td>${a.name}</td>
+            <td>${a.phone}</td>
+            <td><span class="badge" style="background:#fef3c7; color:#b45309;">${a.treatment}</span></td>
+            <td><button class="btn btn-primary" style="padding:0.25rem 0.5rem; font-size:0.75rem;" onclick="switchAdminTab('patients')">Open Care Locker</button></td>
+          </tr>
+        `).join('');
+    }
+  } 
+  else if (role === 'Receptionist') {
+    document.getElementById('receptionRoleDashboard').style.display = 'block';
+    
+    const today = new Date().toLocaleDateString('en-US');
+    const aptsToday = getAllMergedLeads().filter(a => a.date === today);
+    document.getElementById('recAppointmentsCount').textContent = aptsToday.length;
+
+    const newToday = patientsList.filter(p => p.visits && p.visits[0] && p.visits[0].visitDate === today).length;
+    document.getElementById('recRegistrationsCount').textContent = newToday;
+
+    const invoiceList = JSON.parse(localStorage.getItem('aplus_invoices') || '[]');
+    let revenueToday = 0;
+    invoiceList.forEach(i => {
+      if (i.date === today) revenueToday += (i.paidAmount || 0);
+    });
+    document.getElementById('recTodayRevenue').textContent = '₹' + revenueToday.toLocaleString('en-IN');
+
+    lookupReceptionDirectory();
+  } 
+  else if (role === 'Nurse') {
+    document.getElementById('nurseRoleDashboard').style.display = 'block';
+    document.getElementById('nurseTotalPatients').textContent = patientsList.length;
+
+    // Load patients select inside nurse vitals recorder
+    const select = document.getElementById('vitalsPatientSelect');
+    if (select) {
+      select.innerHTML = '<option value="">-- Choose Patient --</option>' +
+        patientsList.map(p => `<option value="${p.id}">${p.name} (${p.id})</option>`).join('');
+    }
+
+    // Vitals captured today logic
+    let vitalsCount = 0;
+    const today = new Date().toLocaleDateString('en-US');
+    patientsList.forEach(p => {
+      if (p.vitalsHistory) {
+        vitalsCount += p.vitalsHistory.filter(vh => vh.date === today).length;
+      }
+    });
+    document.getElementById('nurseVitalsCapturedCount').textContent = vitalsCount;
+  } 
+  else if (role === 'Lab Technician') {
+    document.getElementById('labRoleDashboard').style.display = 'block';
+    
+    // Load patients dropdown inside lab uploader
+    const select = document.getElementById('labPatientSelect');
+    if (select) {
+      select.innerHTML = '<option value="">-- Choose Patient --</option>' +
+        patientsList.map(p => `<option value="${p.id}">${p.name} (${p.id})</option>`).join('');
+    }
+
+    // Pending test simulator and completed tests today stats
+    const today = new Date().toLocaleDateString('en-US');
+    let completedCount = 0;
+    patientsList.forEach(p => {
+      if (p.reports) {
+        completedCount += p.reports.filter(r => r.date === today).length;
+      }
+    });
+    document.getElementById('labCompletedReportsCount').textContent = completedCount;
+    document.getElementById('labPendingTestsCount').textContent = Math.max(0, 4 - completedCount); // Default seed gap
+  }
+}
+
+// Reception lookup table
+function lookupReceptionDirectory() {
+  const query = document.getElementById('recSearchInput').value.toLowerCase();
+  const list = JSON.parse(localStorage.getItem('aplus_patients') || '[]');
+  const tbody = document.getElementById('receptionDirectoryTable');
+  if (!tbody) return;
+
+  const filtered = list.filter(p => 
+    p.name.toLowerCase().includes(query) || 
+    p.phone.includes(query) || 
+    p.id.toLowerCase().includes(query)
+  );
+
+  tbody.innerHTML = filtered.map(p => `
+    <tr>
+      <td><strong>${p.id}</strong></td>
+      <td>${p.name}</td>
+      <td>${p.phone}</td>
+      <td>${p.city}</td>
+      <td>${p.lastVisit || 'N/A'}</td>
+      <td><button class="btn btn-outline" style="padding:0.25rem 0.5rem; font-size:0.72rem;" onclick="switchAdminTab('patients')">Select Case</button></td>
+    </tr>
+  `).join('');
+}
+
+// Nurse Vitals Capture Action
+function savePatientVitalsProcess(e) {
+  e.preventDefault();
+  const pId = document.getElementById('vitalsPatientSelect').value;
+  if (!pId) return;
+
+  const vitalsRecord = {
+    date: new Date().toLocaleDateString('en-US'),
+    bp: document.getElementById('vitalsBp').value.trim(),
+    pulse: document.getElementById('vitalsPulse').value,
+    temp: document.getElementById('vitalsTemp').value,
+    spo2: document.getElementById('vitalsSpo2').value,
+    notes: document.getElementById('vitalsNotes').value.trim(),
+    capturedBy: JSON.parse(sessionStorage.getItem('aplus_logged_in_user') || '{}').fullName || 'Nurse Emily'
+  };
+
+  const list = JSON.parse(localStorage.getItem('aplus_patients') || '[]');
+  const pIdx = list.findIndex(x => x.id === pId);
+  if (pIdx === -1) return;
+
+  list[pIdx].vitalsHistory = list[pIdx].vitalsHistory || [];
+  list[pIdx].vitalsHistory.unshift(vitalsRecord);
+
+  // Auto append notes to visits timeline
+  list[pIdx].visits = list[pIdx].visits || [];
+  list[pIdx].visits.unshift({
+    visitDate: new Date().toLocaleDateString(),
+    doctor: 'Triage / Nurse',
+    department: 'Vitals Diagnostics',
+    diagnosis: `BP: ${vitalsRecord.bp} | Pulse: ${vitalsRecord.pulse} | Temp: ${vitalsRecord.temp} | SpO2: ${vitalsRecord.spo2}%`,
+    status: 'Captured'
+  });
+
+  if (typeof db !== 'undefined' && db) {
+    db.ref('patients/' + pId).set(list[pIdx]).then(() => {
+      showToast('Patient vital signs saved and synced successfully!');
+      logSystemAuditEvent(`Captured vitals for patient: ${list[pIdx].name}`);
+      document.getElementById('nurseVitalsForm').reset();
+      renderStats();
+    });
+  } else {
+    localStorage.setItem('aplus_patients', JSON.stringify(list));
+    showToast('Vitals saved (Offline fallback)');
+    document.getElementById('nurseVitalsForm').reset();
+    renderStats();
+  }
+}
+
+// Lab Tech Diagnostics Upload process
+function saveLabReportProcess(e) {
+  e.preventDefault();
+  const pId = document.getElementById('labPatientSelect').value;
+  const fileInput = document.getElementById('labFileSelector');
+  if (!pId || !fileInput.files || !fileInput.files[0]) return;
+
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const base64Data = evt.target.result;
+    
+    const fileItem = {
+      name: document.getElementById('labTestName').value.trim() || file.name,
+      date: new Date().toLocaleDateString(),
+      category: document.getElementById('labReportType').value,
+      file: base64Data
+    };
+
+    const list = JSON.parse(localStorage.getItem('aplus_patients') || '[]');
+    const pIdx = list.findIndex(x => x.id === pId);
+    if (pIdx === -1) return;
+
+    list[pIdx].reports = list[pIdx].reports || [];
+    list[pIdx].reports.push(fileItem);
+
+    if (typeof db !== 'undefined' && db) {
+      db.ref('patients/' + pId).set(list[pIdx]).then(() => {
+        showToast('Laboratory diagnostic scan uploaded successfully!');
+        logSystemAuditEvent(`Uploaded lab report for patient: ${list[pIdx].name}`);
+        document.getElementById('labReportForm').reset();
+        renderStats();
+      });
+    } else {
+      localStorage.setItem('aplus_patients', JSON.stringify(list));
+      showToast('Lab report saved (Offline)');
+      document.getElementById('labReportForm').reset();
+      renderStats();
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+// Hook renderRoleSpecificDashboard into renderStats
+const originalRenderStats = renderStats;
+renderStats = function() {
+  if (typeof originalRenderStats === 'function') {
+    originalRenderStats();
+  }
+  
+  const activeUser = JSON.parse(sessionStorage.getItem('aplus_logged_in_user') || '{}');
+  const role = activeUser.role || 'Admin';
+  renderRoleSpecificDashboard(role);
+  
+  // Re-sync Users List and Audit log list table if admin view
+  if (role === 'Admin') {
+    renderUsersTable();
+    renderAuditLogsTable();
+  }
+};

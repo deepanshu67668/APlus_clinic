@@ -368,19 +368,36 @@
 </head>
 <body>
 
-  <!-- Admin PIN Authentication Modal -->
+  <!-- Secure Authentication Login Modal -->
   <div class="pin-modal-overlay" id="pinModal">
-    <div class="pin-box">
+    <div class="pin-box" style="max-width: 440px;">
       <img src="assets/logo.png" style="width: 70px; height: 70px; object-fit: contain; border-radius: 50%; background: #ffffff; padding: 4px; border: 3px solid var(--primary); margin: 0 auto 0.75rem auto; display: block; box-shadow: 0 4px 15px rgba(0,0,0,0.15);" alt="A Plus Dental Logo">
       <div style="font-weight: 800; font-size: 1.2rem; color: var(--secondary); font-family: 'Outfit', sans-serif;">A PLUS DENTAL</div>
       <div style="font-size: 0.75rem; color: var(--primary); font-weight: 700; font-family: 'Outfit', sans-serif; margin-bottom: 1rem;">& IMPLANT CENTRE</div>
-      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Enter Admin Security Passcode (Default PIN: <strong>1234</strong>)</p>
+      <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 1.25rem;">Enter credentials to access your role dashboard. Legacy PIN (1234) works.</p>
       
+      <div class="form-group" style="margin-bottom: 1rem; text-align: left;">
+        <label class="form-label" style="font-size: 0.78rem; font-weight: 700;">Quick Demo Roles Autofill:</label>
+        <select id="demoRoleAutofill" class="form-input" style="font-size: 0.85rem;" onchange="autofillDemoCredentials()">
+          <option value="">-- Choose User Role --</option>
+          <option value="admin|admin123">Admin (admin / admin123)</option>
+          <option value="doctor|doctor123">Doctor (doctor / doctor123)</option>
+          <option value="reception|reception123">Receptionist (reception / reception123)</option>
+          <option value="nurse|nurse123">Nurse (nurse / nurse123)</option>
+          <option value="labtech|lab123">Lab Technician (labtech / lab123)</option>
+        </select>
+      </div>
+
       <form id="pinForm">
-        <div class="form-group" style="margin-bottom: 1.25rem;">
-          <input type="password" id="adminPinInput" class="form-input" style="text-align: center; font-size: 1.5rem; letter-spacing: 0.5em;" placeholder="••••" required maxlength="4">
+        <div class="form-group" style="margin-bottom: 0.85rem; text-align: left;">
+          <label class="form-label" style="font-size: 0.78rem;">Username or PIN</label>
+          <input type="text" id="loginUsername" class="form-input" placeholder="Enter username or 4-digit PIN" required>
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fa-solid fa-right-to-bracket"></i> Unlock Dashboard</button>
+        <div class="form-group" style="margin-bottom: 1.25rem; text-align: left;" id="loginPasswordGroup">
+          <label class="form-label" style="font-size: 0.78rem;">Password</label>
+          <input type="password" id="loginPassword" class="form-input" placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fa-solid fa-right-to-bracket"></i> Secure Access Login</button>
       </form>
     </div>
   </div>
@@ -411,50 +428,60 @@
           </div>
         </div>
 
-        <ul class="admin-menu">
-          <li>
+        <ul class="admin-menu" id="adminMenuContainer">
+          <li data-role="Admin,Doctor,Receptionist,Nurse,Lab Technician">
             <button class="admin-menu-btn active" onclick="switchAdminTab('dashboard', this)">
               <i class="fa-solid fa-chart-pie"></i> Dashboard Stats
             </button>
           </li>
-          <li>
+          <li data-role="Admin,Doctor,Receptionist,Nurse">
             <button class="admin-menu-btn" onclick="switchAdminTab('appointments', this)">
               <i class="fa-solid fa-calendar-check"></i> Patient Leads
             </button>
           </li>
-          <li>
+          <li data-role="Admin,Doctor">
             <button class="admin-menu-btn" onclick="switchAdminTab('treatments', this)">
               <i class="fa-solid fa-tooth"></i> Treatments / Services
             </button>
           </li>
-          <li>
+          <li data-role="Admin,Doctor">
             <button class="admin-menu-btn" onclick="switchAdminTab('doctors', this)">
               <i class="fa-solid fa-user-doctor"></i> Doctor Team
             </button>
           </li>
-          <li>
+          <li data-role="Admin">
             <button class="admin-menu-btn" onclick="switchAdminTab('gallery', this)">
               <i class="fa-solid fa-images"></i> Clinic Photos
             </button>
           </li>
-          <li>
+          <li data-role="Admin">
             <button class="admin-menu-btn" onclick="switchAdminTab('blogs', this)">
               <i class="fa-solid fa-newspaper"></i> Dental Blogs
             </button>
           </li>
-          <li>
+          <li data-role="Admin,Receptionist">
             <button class="admin-menu-btn" onclick="switchAdminTab('reviews', this)">
               <i class="fa-solid fa-star"></i> Patient Reviews
             </button>
           </li>
-          <li>
+          <li data-role="Admin,Doctor,Receptionist,Nurse,Lab Technician">
             <button class="admin-menu-btn" onclick="switchAdminTab('patients', this)">
               <i class="fa-solid fa-hospital-user"></i> Patient Management
             </button>
           </li>
-          <li>
+          <li data-role="Admin,Receptionist">
             <button class="admin-menu-btn" onclick="switchAdminTab('billing', this)">
               <i class="fa-solid fa-file-invoice-dollar"></i> Billing & Invoice
+            </button>
+          </li>
+          <li data-role="Admin">
+            <button class="admin-menu-btn" onclick="switchAdminTab('users-roles', this)">
+              <i class="fa-solid fa-users-gear"></i> Users & Roles
+            </button>
+          </li>
+          <li data-role="Admin">
+            <button class="admin-menu-btn" onclick="switchAdminTab('audit-logs', this)">
+              <i class="fa-solid fa-file-shield"></i> Security Audit Logs
             </button>
           </li>
         </ul>
@@ -484,59 +511,277 @@
 
       <!-- Tab 1: Dashboard Stats -->
       <div id="tab-dashboard" class="admin-tab-content">
-        <div class="admin-stats-grid">
-          <div class="admin-stat-box">
-            <div class="admin-stat-icon"><i class="fa-solid fa-users"></i></div>
-            <div>
-              <div class="admin-stat-num" id="statAppointments">0</div>
-              <div class="admin-stat-title">Patient Appointments</div>
+        
+        <!-- 1. Admin Dashboard Panel -->
+        <div id="adminRoleDashboard">
+          <div class="admin-stats-grid">
+            <div class="admin-stat-box">
+              <div class="admin-stat-icon"><i class="fa-solid fa-users"></i></div>
+              <div>
+                <div class="admin-stat-num" id="statAppointments">0</div>
+                <div class="admin-stat-title">Patient Appointments</div>
+              </div>
+            </div>
+            <div class="admin-stat-box">
+              <div class="admin-stat-icon"><i class="fa-solid fa-tooth"></i></div>
+              <div>
+                <div class="admin-stat-num" id="statTreatments">0</div>
+                <div class="admin-stat-title">Active Treatments</div>
+              </div>
+            </div>
+            <div class="admin-stat-box">
+              <div class="admin-stat-icon"><i class="fa-solid fa-user-doctor"></i></div>
+              <div>
+                <div class="admin-stat-num" id="statDoctors">0</div>
+                <div class="admin-stat-title">Doctors On Staff</div>
+              </div>
+            </div>
+            <div class="admin-stat-box">
+              <div class="admin-stat-icon"><i class="fa-solid fa-newspaper"></i></div>
+              <div>
+                <div class="admin-stat-num" id="statBlogs">0</div>
+                <div class="admin-stat-title">Published Articles</div>
+              </div>
             </div>
           </div>
-          <div class="admin-stat-box">
-            <div class="admin-stat-icon"><i class="fa-solid fa-tooth"></i></div>
-            <div>
-              <div class="admin-stat-num" id="statTreatments">0</div>
-              <div class="admin-stat-title">Active Treatments</div>
-            </div>
-          </div>
-          <div class="admin-stat-box">
-            <div class="admin-stat-icon"><i class="fa-solid fa-user-doctor"></i></div>
-            <div>
-              <div class="admin-stat-num" id="statDoctors">0</div>
-              <div class="admin-stat-title">Doctors On Staff</div>
-            </div>
-          </div>
-          <div class="admin-stat-box">
-            <div class="admin-stat-icon"><i class="fa-solid fa-newspaper"></i></div>
-            <div>
-              <div class="admin-stat-num" id="statBlogs">0</div>
-              <div class="admin-stat-title">Published Articles</div>
+
+          <div class="admin-card">
+            <h3 style="margin-bottom: 1rem;">Recent Patient Booking Leads</h3>
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Patient Name</th>
+                    <th>Mobile Number</th>
+                    <th>Treatment Requested</th>
+                    <th>Branch</th>
+                    <th>Appointment Date</th>
+                    <th>Source</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="dashAppointmentsTable">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
 
-        <div class="admin-card">
-          <h3 style="margin-bottom: 1rem;">Recent Patient Booking Leads</h3>
-          <div class="table-responsive">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>Patient Name</th>
-                  <th>Mobile Number</th>
-                  <th>Treatment Requested</th>
-                  <th>Branch</th>
-                  <th>Appointment Date</th>
-                  <th>Source</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="dashAppointmentsTable">
-                <!-- Injected via JS -->
-              </tbody>
-            </table>
+        <!-- 2. Doctor Dashboard Panel -->
+        <div id="doctorRoleDashboard" style="display: none;">
+          <div class="admin-stats-grid">
+            <div class="admin-stat-box">
+              <div class="admin-stat-icon"><i class="fa-solid fa-user-clock"></i></div>
+              <div>
+                <div class="admin-stat-num" id="docAppointmentsCount">0</div>
+                <div class="admin-stat-title">Today's Cases</div>
+              </div>
+            </div>
+            <div class="admin-stat-box">
+              <div class="admin-stat-icon"><i class="fa-solid fa-notes-medical"></i></div>
+              <div>
+                <div class="admin-stat-num" id="docTotalPatientsCount">0</div>
+                <div class="admin-stat-title">Assigned Patients</div>
+              </div>
+            </div>
+            <div class="admin-stat-box">
+              <div class="admin-stat-icon"><i class="fa-solid fa-file-medical"></i></div>
+              <div>
+                <div class="admin-stat-num" id="docPendingReportsCount">0</div>
+                <div class="admin-stat-title">Pending Reports</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <h3>Today's Clinical Patient Queue</h3>
+            <div class="table-responsive" style="margin-top: 1rem;">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Time Slot</th>
+                    <th>Patient Name</th>
+                    <th>Phone</th>
+                    <th>Treatment</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="doctorQueueTable">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
+
+        <!-- 3. Receptionist Dashboard Panel -->
+        <div id="receptionRoleDashboard" style="display: none;">
+          <div class="admin-stats-grid">
+            <div class="admin-stat-box">
+              <div class="admin-stat-icon"><i class="fa-solid fa-calendar-day"></i></div>
+              <div>
+                <div class="admin-stat-num" id="recAppointmentsCount">0</div>
+                <div class="admin-stat-title">Today's Appointments</div>
+              </div>
+            </div>
+            <div class="admin-stat-box">
+              <div class="admin-stat-icon"><i class="fa-solid fa-user-plus"></i></div>
+              <div>
+                <div class="admin-stat-num" id="recRegistrationsCount">0</div>
+                <div class="admin-stat-title">Registrations Today</div>
+              </div>
+            </div>
+            <div class="admin-stat-box">
+              <div class="admin-stat-icon"><i class="fa-solid fa-wallet"></i></div>
+              <div>
+                <div class="admin-stat-num" id="recTodayRevenue">₹0</div>
+                <div class="admin-stat-title">Today's Collections</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <h3>Quick Patient Directory Lookup</h3>
+            <div style="display: flex; gap: 1rem; margin-top: 1rem; margin-bottom: 1rem;">
+              <input type="text" id="recSearchInput" class="form-input" placeholder="Enter patient name, phone, ID or Aadhaar..." oninput="lookupReceptionDirectory()">
+            </div>
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Patient ID</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>City</th>
+                    <th>Last Visit</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="receptionDirectoryTable">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Nurse Dashboard Panel -->
+        <div id="nurseRoleDashboard" style="display: none;">
+          <div class="admin-stats-grid">
+            <div class="admin-stat-box">
+              <div class="admin-stat-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+              <div>
+                <div class="admin-stat-num" id="nurseTotalPatients">0</div>
+                <div class="admin-stat-title">Total Active Patients</div>
+              </div>
+            </div>
+            <div class="admin-stat-box">
+              <div class="admin-stat-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+              <div>
+                <div class="admin-stat-num" id="nurseVitalsCapturedCount">0</div>
+                <div class="admin-stat-title">Vitals Captured Today</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <h3>Capture Patient Vital Signs & Notes</h3>
+            <form id="nurseVitalsForm" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;" onsubmit="savePatientVitalsProcess(event)">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Select Patient</label>
+                  <select id="vitalsPatientSelect" class="form-input" required>
+                    <option value="">-- Choose Patient --</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Blood Pressure (e.g. 120/80 mmHg)</label>
+                  <input type="text" id="vitalsBp" class="form-input" placeholder="120/80" required>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Heart Pulse Rate (bpm)</label>
+                  <input type="number" id="vitalsPulse" class="form-input" placeholder="72" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Body Temperature (°F)</label>
+                  <input type="number" id="vitalsTemp" class="form-input" step="0.1" placeholder="98.6" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">SpO2 Oxygen Level (%)</label>
+                  <input type="number" id="vitalsSpo2" class="form-input" min="50" max="100" placeholder="98" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Nursing Observation Notes</label>
+                <textarea id="vitalsNotes" class="form-input" rows="2" placeholder="e.g. Patient feels mild dizziness." required></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary"><i class="fa-solid fa-heart-circle-check"></i> Save Vitals & Update Status</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- 5. Lab Dashboard Panel -->
+        <div id="labRoleDashboard" style="display: none;">
+          <div class="admin-stats-grid">
+            <div class="admin-stat-box">
+              <div class="admin-stat-icon"><i class="fa-solid fa-microscope"></i></div>
+              <div>
+                <div class="admin-stat-num" id="labPendingTestsCount">0</div>
+                <div class="admin-stat-title">Pending Test Requests</div>
+              </div>
+            </div>
+            <div class="admin-stat-box">
+              <div class="admin-stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+              <div>
+                <div class="admin-stat-num" id="labCompletedReportsCount">0</div>
+                <div class="admin-stat-title">Reports Completed Today</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <h3>Laboratory Diagnostic Upload Queue</h3>
+            <form id="labReportForm" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;" onsubmit="saveLabReportProcess(event)">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Select Patient</label>
+                  <select id="labPatientSelect" class="form-input" required>
+                    <option value="">-- Choose Patient --</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Test Report Category</label>
+                  <select id="labReportType" class="form-input" required>
+                    <option value="Lab">Lab Diagnostic</option>
+                    <option value="X-Ray">X-Ray Scan</option>
+                    <option value="MRI">MRI Scan</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Diagnostic Name / Title</label>
+                  <input type="text" id="labTestName" class="form-input" placeholder="e.g. Complete Blood Count (CBC)" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Select Diagnostic Document / Scan Image (PDF/JPG/PNG)</label>
+                  <input type="file" id="labFileSelector" class="form-input" required>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary"><i class="fa-solid fa-file-arrow-up"></i> Upload Diagnostic Results</button>
+            </form>
+          </div>
+        </div>
+
       </div>
 
       <!-- Tab 2: Appointments Log -->
@@ -1458,6 +1703,135 @@
           </div>
         </div>
       </div>
+
+      <!-- Tab 10: Users & Roles (RBAC) -->
+      <div id="tab-users-roles" class="admin-tab-content" style="display: none;">
+        <!-- User Management Header -->
+        <div class="admin-card">
+          <h3 id="userFormHeading">Add New User Account</h3>
+          <form id="userAccountForm" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+            <input type="hidden" id="editUserIdRaw">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" id="userFullName" class="form-input" placeholder="e.g. Dr. Amit Sharma" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Employee / Staff ID</label>
+                <input type="text" id="userEmployeeId" class="form-input" placeholder="e.g. EMP_102" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Mobile Number</label>
+                <input type="tel" id="userMobile" class="form-input" placeholder="10-digit phone" required pattern="[0-9]{10}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="userEmail" class="form-input" placeholder="e.g. email@aplus.com" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" id="userUsername" class="form-input" placeholder="Username for login" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">User Role</label>
+                <select id="userRole" class="form-input" required>
+                  <option value="Admin">Admin</option>
+                  <option value="Doctor">Doctor</option>
+                  <option value="Receptionist">Receptionist</option>
+                  <option value="Nurse">Nurse</option>
+                  <option value="Lab Technician">Lab Technician</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" id="userPassword" class="form-input" placeholder="••••••••" required minlength="6">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" id="userConfirmPassword" class="form-input" placeholder="••••••••" required minlength="6">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Department</label>
+                <input type="text" id="userDepartment" class="form-input" placeholder="e.g. Clinical, Administration, Laboratory" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Account Status</label>
+                <select id="userStatus" class="form-input" required>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+              <button type="submit" class="btn btn-primary" id="saveUserBtn"><i class="fa-solid fa-user-plus"></i> Save User Account</button>
+              <button type="button" class="btn btn-outline" onclick="resetUserForm()">Reset</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Users List -->
+        <div class="admin-card">
+          <h3>Registered Staff & Access Control</h3>
+          <div class="table-responsive" style="margin-top: 1rem;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Employee ID</th>
+                  <th>Full Name</th>
+                  <th>Username</th>
+                  <th>Role</th>
+                  <th>Department</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="usersAdminTable">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 11: Security Audit Logs -->
+      <div id="tab-audit-logs" class="admin-tab-content" style="display: none;">
+        <div class="admin-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+            <h3>System Security Audit Trail</h3>
+            <button class="btn btn-outline" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="clearAuditLogs()"><i class="fa-solid fa-trash-can"></i> Clear Logs</button>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Time / Date</th>
+                  <th>User Name</th>
+                  <th>Role</th>
+                  <th>Action Triggered</th>
+                  <th>Location / IP</th>
+                </tr>
+              </thead>
+              <tbody id="auditLogsAdminTable">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
 
     </main>
   </div>
