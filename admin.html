@@ -142,6 +142,56 @@
       box-shadow: var(--shadow-lg);
     }
     
+    /* General Modals Styling */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(5px);
+      z-index: 3000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      box-sizing: border-box;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-box {
+      background: white;
+      border-radius: var(--radius-lg);
+      width: 100%;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      animation: modalSlideIn 0.3s ease-out;
+      box-sizing: border-box;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-close-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      z-index: 10;
+      transition: color 0.2s;
+    }
+    .modal-close-btn:hover {
+      color: #be123c;
+    }
+    @keyframes modalSlideIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
     .table-responsive {
       overflow-x: auto;
     }
@@ -395,6 +445,16 @@
           <li>
             <button class="admin-menu-btn" onclick="switchAdminTab('reviews', this)">
               <i class="fa-solid fa-star"></i> Patient Reviews
+            </button>
+          </li>
+          <li>
+            <button class="admin-menu-btn" onclick="switchAdminTab('patients', this)">
+              <i class="fa-solid fa-hospital-user"></i> Patient Management
+            </button>
+          </li>
+          <li>
+            <button class="admin-menu-btn" onclick="switchAdminTab('billing', this)">
+              <i class="fa-solid fa-file-invoice-dollar"></i> Billing & Invoice
             </button>
           </li>
         </ul>
@@ -847,7 +907,608 @@
         </div>
       </div>
 
+      <!-- Tab 8: Patient Management -->
+      <div id="tab-patients" class="admin-tab-content" style="display: none;">
+        <!-- Dashboard Summary -->
+        <div class="admin-stats-grid">
+          <div class="admin-stat-box">
+            <div class="admin-stat-icon"><i class="fa-solid fa-hospital-user"></i></div>
+            <div>
+              <div class="admin-stat-num" id="statTotalPatients">0</div>
+              <div class="admin-stat-title">Total Patients</div>
+            </div>
+          </div>
+          <div class="admin-stat-box">
+            <div class="admin-stat-icon"><i class="fa-solid fa-calendar-day"></i></div>
+            <div>
+              <div class="admin-stat-num" id="statNewPatientsToday">0</div>
+              <div class="admin-stat-title">New Patients Today</div>
+            </div>
+          </div>
+          <div class="admin-stat-box">
+            <div class="admin-stat-icon"><i class="fa-solid fa-arrows-spin"></i></div>
+            <div>
+              <div class="admin-stat-num" id="statReturningPatients">0</div>
+              <div class="admin-stat-title">Returning Patients</div>
+            </div>
+          </div>
+          <div class="admin-stat-box">
+            <div class="admin-stat-icon"><i class="fa-solid fa-user-check"></i></div>
+            <div>
+              <div class="admin-stat-num" id="statActivePatients">0</div>
+              <div class="admin-stat-title">Active Patients</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Registration Form -->
+        <div class="admin-card">
+          <h3 id="patientFormHeading">Patient Registration</h3>
+          <form id="patientRegistrationForm" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+            <input type="hidden" id="editPatientIdRaw">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Patient ID (Auto Generated)</label>
+                <input type="text" id="patientId" class="form-input" readonly placeholder="Auto-generated after save">
+              </div>
+              <div class="form-row" style="grid-column: span 1; gap: 1rem;">
+                <div class="form-group">
+                  <label class="form-label">First Name</label>
+                  <input type="text" id="patientFirstName" class="form-input" placeholder="First Name" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Last Name</label>
+                  <input type="text" id="patientLastName" class="form-input" placeholder="Last Name" required>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Gender</label>
+                <select id="patientGender" class="form-input" required>
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-row" style="grid-column: span 1; gap: 1rem;">
+                <div class="form-group">
+                  <label class="form-label">Date of Birth</label>
+                  <input type="date" id="patientDob" class="form-input" onchange="calculatePatientAge()" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Age</label>
+                  <input type="number" id="patientAge" class="form-input" readonly placeholder="Auto from DOB">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Mobile Number</label>
+                <input type="tel" id="patientMobile" class="form-input" placeholder="10-digit number" required pattern="[0-9]{10}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Alternate Number</label>
+                <input type="tel" id="patientAltMobile" class="form-input" placeholder="Optional alternative phone">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Aadhaar Number</label>
+                <input type="text" id="patientAadhaar" class="form-input" placeholder="12-digit Aadhaar number" pattern="[0-9]{12}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="patientEmail" class="form-input" placeholder="e.g. name@domain.com">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Blood Group</label>
+                <select id="patientBloodGroup" class="form-input">
+                  <option value="">Select Blood Group</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Marital Status</label>
+                <select id="patientMaritalStatus" class="form-input">
+                  <option value="Single">Single</option>
+                  <option value="Married">Married</option>
+                  <option value="Divorced">Divorced</option>
+                  <option value="Widowed">Widowed</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Emergency Contact Name</label>
+                <input type="text" id="patientEmergencyName" class="form-input" placeholder="Contact Name">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Emergency Contact Number</label>
+                <input type="tel" id="patientEmergencyPhone" class="form-input" placeholder="Emergency Phone">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Occupation</label>
+                <input type="text" id="patientOccupation" class="form-input" placeholder="e.g. Engineer, Business, Student">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Link Family Head (Head Patient)</label>
+                <select id="patientFamilyHead" class="form-input">
+                  <option value="">No Linking (Self / Head)</option>
+                  <!-- Dynamically populated -->
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Address</label>
+              <textarea id="patientAddress" class="form-input" rows="2" placeholder="Street Address, Area" required></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">City</label>
+                <input type="text" id="patientCity" class="form-input" placeholder="e.g. Ghaziabad" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">State</label>
+                <input type="text" id="patientState" class="form-input" placeholder="e.g. Uttar Pradesh" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">PIN Code</label>
+                <input type="text" id="patientPinCode" class="form-input" placeholder="6-digit PIN" required pattern="[0-9]{6}">
+              </div>
+            </div>
+
+            <!-- Aadhaar / Phone Verification Area -->
+            <div class="form-group" style="background: var(--bg-main); padding: 1rem; border-radius: var(--radius-sm); border: 1px dashed #cbd5e1; margin-top: 0.5rem;">
+              <h4 style="margin-bottom: 0.5rem; color: var(--secondary);"><i class="fa-solid fa-shield-halved"></i> KYC Verification Status</h4>
+              <div style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span>Phone Verification:</span>
+                  <span id="phoneBadge" class="badge" style="background: #e2e8f0; color: #475569;">Unverified</span>
+                  <button type="button" class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.72rem;" onclick="togglePhoneVerification()">Verify/Toggle</button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span>Aadhaar Verification:</span>
+                  <span id="aadhaarBadge" class="badge" style="background: #e2e8f0; color: #475569;">Unverified</span>
+                  <button type="button" class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.72rem;" onclick="toggleAadhaarVerification()">Verify/Toggle</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+              <button type="submit" class="btn btn-primary" id="savePatientBtn"><i class="fa-solid fa-floppy-disk"></i> Save Patient</button>
+              <button type="button" class="btn btn-secondary" onclick="saveAndAddAnotherPatient()"><i class="fa-solid fa-plus"></i> Save & Add Another</button>
+              <button type="button" class="btn btn-outline" onclick="resetPatientForm()">Reset</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Patient List & Search -->
+        <div class="admin-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+            <h3>Registered Patient Records</h3>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-outline" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="exportPatientsCSV()"><i class="fa-solid fa-file-csv"></i> CSV</button>
+              <button class="btn btn-outline" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="printPatientsReport()"><i class="fa-solid fa-print"></i> Print</button>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1rem;">
+            <input type="text" id="patientSearchInput" class="form-input" placeholder="🔍 Search by Name, Phone, Aadhaar, Disease, or Doctor..." oninput="filterPatientsList()">
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Patient ID</th>
+                  <th>Name</th>
+                  <th>Age</th>
+                  <th>Gender</th>
+                  <th>Phone</th>
+                  <th>City</th>
+                  <th>Last Visit</th>
+                  <th>Doctor</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="patientsAdminTable">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 9: Billing & Invoice -->
+      <div id="tab-billing" class="admin-tab-content" style="display: none;">
+        <!-- Billing Dashboard -->
+        <div class="admin-stats-grid">
+          <div class="admin-stat-box">
+            <div class="admin-stat-icon"><i class="fa-solid fa-wallet"></i></div>
+            <div>
+              <div class="admin-stat-num" id="statTodayRevenue">₹0</div>
+              <div class="admin-stat-title">Today's Revenue</div>
+            </div>
+          </div>
+          <div class="admin-stat-box">
+            <div class="admin-stat-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            <div>
+              <div class="admin-stat-num" id="statPendingPayments">₹0</div>
+              <div class="admin-stat-title">Pending Payments</div>
+            </div>
+          </div>
+          <div class="admin-stat-box">
+            <div class="admin-stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <div>
+              <div class="admin-stat-num" id="statPaidInvoices">0</div>
+              <div class="admin-stat-title">Paid Invoices</div>
+            </div>
+          </div>
+          <div class="admin-stat-box">
+            <div class="admin-stat-icon"><i class="fa-solid fa-shield-heart"></i></div>
+            <div>
+              <div class="admin-stat-num" id="statInsuranceClaims">0</div>
+              <div class="admin-stat-title">Insurance Claims</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- New Invoice Generator -->
+        <div class="admin-card">
+          <h3>Create New Bill / Invoice</h3>
+          <form id="billingInvoiceForm" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+            
+            <!-- Patient Search & Info -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Search Registered Patient</label>
+                <select id="invoicePatientSelect" class="form-input" onchange="autoFillInvoicePatientDetails()" required>
+                  <option value="">Select Patient</option>
+                  <!-- Dynamically populated -->
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Invoice Number</label>
+                <input type="text" id="invoiceNumber" class="form-input" readonly placeholder="Auto-generated">
+              </div>
+            </div>
+
+            <!-- Consultation Billing -->
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 1rem; margin-top: 0.5rem;">
+              <h4 style="margin-bottom: 0.75rem; color: var(--secondary);"><i class="fa-solid fa-stethoscope"></i> Consultation Billing</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Consulting Doctor</label>
+                  <select id="invoiceDoctor" class="form-input">
+                    <option value="">Select Doctor</option>
+                    <!-- Dynamically populated -->
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Consultation Fee (₹)</label>
+                  <input type="number" id="invoiceConsultationFee" class="form-input" min="0" value="0" oninput="calculateInvoiceTotal()">
+                </div>
+              </div>
+            </div>
+
+            <!-- Procedure Billing -->
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 1rem; margin-top: 0.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h4 style="color: var(--secondary);"><i class="fa-solid fa-tooth"></i> Dental Procedures Billing</h4>
+                <button type="button" class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="addProcedureBillingRow()"><i class="fa-solid fa-plus"></i> Add Row</button>
+              </div>
+              <div id="proceduresBillingContainer" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <!-- Procedure rows injected here -->
+              </div>
+            </div>
+
+            <!-- Lab Test Billing -->
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 1rem; margin-top: 0.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h4 style="color: var(--secondary);"><i class="fa-solid fa-flask"></i> Diagnostic / Lab Test Billing</h4>
+                <button type="button" class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="addLabBillingRow()"><i class="fa-solid fa-plus"></i> Add Row</button>
+              </div>
+              <div id="labsBillingContainer" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <!-- Lab rows injected here -->
+              </div>
+            </div>
+
+            <!-- Pharmacy Billing Table -->
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 1rem; margin-top: 0.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h4 style="color: var(--secondary);"><i class="fa-solid fa-pills"></i> Pharmacy / Medicine Billing</h4>
+                <button type="button" class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="addPharmacyBillingRow()"><i class="fa-solid fa-plus"></i> Add Row</button>
+              </div>
+              <div class="table-responsive">
+                <table class="admin-table" style="min-width: 500px;">
+                  <thead>
+                    <tr>
+                      <th>Medicine Name</th>
+                      <th style="width: 100px;">Qty</th>
+                      <th style="width: 120px;">Unit Price (₹)</th>
+                      <th style="width: 100px;">Discount (%)</th>
+                      <th>Total (₹)</th>
+                      <th style="width: 80px;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pharmacyBillingContainer">
+                    <!-- Pharmacy rows injected here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Health Package Predefined Options -->
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 1rem; margin-top: 0.5rem;">
+              <h4 style="margin-bottom: 0.75rem; color: var(--secondary);"><i class="fa-solid fa-box-archive"></i> Predefined Dental / Health Packages</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Select Predefined Package</label>
+                  <select id="invoicePackageSelect" class="form-input" onchange="applyPredefinedPackage()">
+                    <option value="">No Package Selected</option>
+                    <option value="Full Body Oral Checkup|1999">Full Body Oral Checkup (₹1,999)</option>
+                    <option value="Diabetes Oral Care Package|1499">Diabetes Oral Care Package (₹1,499)</option>
+                    <option value="Cardiac Dental Guard|2999">Cardiac Dental Guard (₹2,999)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Applied Package Price (₹)</label>
+                  <input type="number" id="invoicePackagePrice" class="form-input" value="0" readonly>
+                </div>
+              </div>
+            </div>
+
+            <!-- Insurance Section -->
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 1rem; margin-top: 0.5rem;">
+              <h4 style="margin-bottom: 0.75rem; color: var(--secondary);"><i class="fa-solid fa-shield-heart"></i> Insurance Claim Details (Optional)</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Insurance Provider</label>
+                  <input type="text" id="invoiceInsuranceCompany" class="form-input" placeholder="e.g. Star Health, LIC">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Policy / Card Number</label>
+                  <input type="text" id="invoiceInsurancePolicy" class="form-input" placeholder="e.g. Star-100293">
+                </div>
+              </div>
+              <div class="form-row" style="margin-top: 0.5rem;">
+                <div class="form-group">
+                  <label class="form-label">Insurance Claim Status</label>
+                  <select id="invoiceInsuranceStatus" class="form-input" onchange="calculateInvoiceTotal()">
+                    <option value="No Claim">No Claim / Cash Only</option>
+                    <option value="Pending">Pending Approval</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Approved Claim Amount (₹)</label>
+                  <input type="number" id="invoiceInsuranceApproved" class="form-input" value="0" min="0" oninput="calculateInvoiceTotal()">
+                </div>
+              </div>
+            </div>
+
+            <!-- Invoice Totals Calculation -->
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 1rem; background: #f8fafc; padding: 1.5rem; border-radius: var(--radius-md); margin-top: 0.5rem;">
+              <h4 style="color: var(--secondary); margin-bottom: 1rem;"><i class="fa-solid fa-calculator"></i> Invoice Calculation Summary</h4>
+              <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span>Subtotal:</span>
+                  <strong id="invoiceSubtotal">₹0.00</strong>
+                </div>
+                
+                <div class="form-row" style="align-items: center; gap: 1rem;">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span>Discount Type:</span>
+                    <select id="invoiceDiscountType" class="form-input" style="padding: 0.35rem 0.5rem; width: 120px;" onchange="calculateInvoiceTotal()">
+                      <option value="flat">Flat (₹)</option>
+                      <option value="percent">Percent (%)</option>
+                    </select>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span>Value:</span>
+                    <input type="number" id="invoiceDiscountValue" class="form-input" style="padding: 0.35rem 0.5rem; width: 120px;" value="0" min="0" oninput="calculateInvoiceTotal()">
+                  </div>
+                  <div style="margin-left: auto;">
+                    Discount Amount: <strong id="invoiceDiscountAmount" style="color: #be123c;">-₹0.00</strong>
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between;">
+                  <span>GST Tax (18%):</span>
+                  <strong id="invoiceGstAmount">₹0.00</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-top: 1px solid #e2e8f0; padding-top: 0.75rem; font-size: 1.2rem; color: var(--primary-dark);">
+                  <span>Grand Total Net Payable:</span>
+                  <strong id="invoiceGrandTotal">₹0.00</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Methods Split and QR Code -->
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 1rem; margin-top: 0.5rem;">
+              <h4 style="margin-bottom: 0.75rem; color: var(--secondary);"><i class="fa-solid fa-money-bill-transfer"></i> Split Payment Allocation & UPI QR Code</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Cash Payment (₹)</label>
+                  <input type="number" id="payCash" class="form-input" value="0" min="0" oninput="validateSplitPayments()">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">UPI / QR Payment (₹)</label>
+                  <input type="number" id="payUpi" class="form-input" value="0" min="0" oninput="validateSplitPayments(); generateDynamicUpiQR();">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Card Payment (₹)</label>
+                  <input type="number" id="payCard" class="form-input" value="0" min="0" oninput="validateSplitPayments()">
+                </div>
+              </div>
+              <div style="display: flex; gap: 2rem; margin-top: 1rem; align-items: center; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 250px;">
+                  <div style="margin-bottom: 0.5rem;">Remaining Unallocated Balance: <strong id="unallocatedPaymentBalance" style="color: #be123c;">₹0.00</strong></div>
+                  <div id="paymentSplitWarning" style="color: #b45309; font-size: 0.85rem; display: none;"><i class="fa-solid fa-triangle-exclamation"></i> Sum of split payments must match grand total!</div>
+                </div>
+                <div id="dynamicUpiQrContainer" style="display: none; flex-direction: column; align-items: center; border: 1px solid #cbd5e1; padding: 0.75rem; border-radius: var(--radius-sm); background: white;">
+                  <img id="dynamicUpiQrImage" src="" style="width: 120px; height: 120px; object-fit: contain;" alt="UPI QR Code">
+                  <span style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 0.5rem;">Scan to pay UPI Amount</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+              <button type="submit" class="btn btn-primary" id="saveInvoiceBtn"><i class="fa-solid fa-floppy-disk"></i> Generate & Save Invoice</button>
+              <button type="button" class="btn btn-outline" onclick="resetBillingInvoiceForm()">Reset</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Refund Management Form -->
+        <div class="admin-card">
+          <h3>Refund Management</h3>
+          <form id="refundManagementForm" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;" onsubmit="processRefundSubmit(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Enter Invoice Number to Refund</label>
+                <input type="text" id="refundInvoiceLookup" class="form-input" placeholder="e.g. INV_2026_1002" required>
+              </div>
+              <div class="form-group" style="display: flex; align-items: flex-end;">
+                <button type="button" class="btn btn-primary" onclick="lookupRefundInvoiceDetails()"><i class="fa-solid fa-magnifying-glass"></i> Lookup Invoice</button>
+              </div>
+            </div>
+            
+            <div id="refundInvoiceDetailsArea" style="display: none; background: #fffbeb; padding: 1rem; border-radius: var(--radius-sm); border: 1px solid #fef3c7;">
+              <!-- Auto filled lookup details -->
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Refund Amount (₹)</label>
+                <input type="number" id="refundAmount" class="form-input" min="0" placeholder="Refund Amount" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Refund Mode</label>
+                <select id="refundMode" class="form-input" required>
+                  <option value="Cash">Cash</option>
+                  <option value="UPI">UPI</option>
+                  <option value="Card">Card</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Reason for Refund</label>
+              <textarea id="refundReason" class="form-input" rows="2" placeholder="e.g. Overpayment, Patient Cancellation" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="background: #be123c;"><i class="fa-solid fa-rotate-left"></i> Process Refund</button>
+          </form>
+        </div>
+
+        <!-- Invoice History -->
+        <div class="admin-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+            <h3>Invoice History & Log</h3>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-outline" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="exportInvoicesCSV()"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+              <button class="btn btn-outline" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="printInvoicesReport()"><i class="fa-solid fa-print"></i> Print</button>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1rem;">
+            <input type="text" id="invoiceSearchInput" class="form-input" placeholder="🔍 Search invoices by Patient Name, Invoice Number, Doctor, or Status..." oninput="filterInvoicesList()">
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Invoice No</th>
+                  <th>Patient</th>
+                  <th>Date</th>
+                  <th>Grand Total (₹)</th>
+                  <th>Paid (₹)</th>
+                  <th>Due (₹)</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="invoicesAdminTable">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </main>
+  </div>
+
+  <!-- Patient Profile Multi-Tab Modal -->
+  <div class="modal-overlay" id="patientProfileModal">
+    <div class="modal-box" style="max-width: 900px; padding: 2rem;">
+      <button class="modal-close-btn" onclick="closePatientProfileModal()"><i class="fa-solid fa-xmark"></i></button>
+      
+      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
+        <i class="fa-solid fa-id-card-clip" style="font-size: 2.2rem; color: var(--primary);"></i>
+        <div>
+          <h2 id="profilePatientName" style="color: var(--secondary);">Deepanshu Sharma</h2>
+          <span style="font-size: 0.85rem; color: var(--text-secondary);">Patient ID: <strong id="profilePatientId">PAT_1002</strong></span>
+        </div>
+      </div>
+
+      <!-- Tab Menu inside Modal -->
+      <div style="display: flex; gap: 0.5rem; overflow-x: auto; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e2e8f0;">
+        <button class="btn btn-outline profile-tab-btn active" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;" onclick="switchProfileTab('basic', this)">Details</button>
+        <button class="btn btn-outline profile-tab-btn" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;" onclick="switchProfileTab('visits', this)">Visits</button>
+        <button class="btn btn-outline profile-tab-btn" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;" onclick="switchProfileTab('diagnoses', this)">Diagnoses</button>
+        <button class="btn btn-outline profile-tab-btn" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;" onclick="switchProfileTab('prescriptions', this)">Prescriptions</button>
+        <button class="btn btn-outline profile-tab-btn" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;" onclick="switchProfileTab('lab', this)">Lab / X-Ray / MRI</button>
+        <button class="btn btn-outline profile-tab-btn" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;" onclick="switchProfileTab('allergies', this)">Allergies/Chronic</button>
+        <button class="btn btn-outline profile-tab-btn" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;" onclick="switchProfileTab('vaccines', this)">Vaccines</button>
+        <button class="btn btn-outline profile-tab-btn" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;" onclick="switchProfileTab('docs', this)">Documents</button>
+      </div>
+
+      <!-- Tab Content Area inside Modal -->
+      <div id="profileTabContent" style="max-height: 480px; overflow-y: auto; padding: 0.5rem;">
+        <!-- Dynamic content injected here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Printable Invoice Preview Modal -->
+  <div class="modal-overlay" id="invoicePreviewModal">
+    <div class="modal-box" style="max-width: 750px; padding: 2rem;">
+      <button class="modal-close-btn" onclick="closeInvoicePreviewModal()"><i class="fa-solid fa-xmark"></i></button>
+      
+      <!-- Printable Invoice Sheet Area -->
+      <div id="printableInvoiceSheet" style="background: white; border: 1px solid #cbd5e1; padding: 2rem; border-radius: var(--radius-sm); font-family: 'Plus Jakarta Sans', sans-serif;">
+        <!-- Dynamic Invoice Breakdown Injected Here -->
+      </div>
+
+      <div style="display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: flex-end;">
+        <button class="btn btn-primary" onclick="printInvoiceSheet()"><i class="fa-solid fa-print"></i> Print Invoice</button>
+        <button class="btn btn-outline" onclick="closeInvoicePreviewModal()">Close Preview</button>
+      </div>
+    </div>
   </div>
 
   <!-- Toast Notification -->
