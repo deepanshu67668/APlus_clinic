@@ -195,9 +195,31 @@
       z-index: 1900;
     }
     
+
+    
+    .table-responsive::-webkit-scrollbar {
+      height: 6px;
+    }
+    .table-responsive::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 4px;
+    }
+    .table-responsive::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .table-responsive::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .admin-table th, .admin-table td {
+      white-space: nowrap;
+    }
+    
     @media (max-width: 1024px) {
       .admin-layout {
         grid-template-columns: 1fr;
+        max-width: 100%;
+        width: 100%;
       }
       .admin-mobile-header {
         display: flex;
@@ -220,6 +242,10 @@
       }
       .admin-main {
         padding: 1.25rem 1rem;
+        min-width: 0; /* Prevents children from pushing layout wider than viewport */
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
       }
       .admin-header {
         display: none !important;
@@ -242,24 +268,6 @@
       }
     }
     
-    .table-responsive::-webkit-scrollbar {
-      height: 6px;
-    }
-    .table-responsive::-webkit-scrollbar-track {
-      background: #f1f5f9;
-      border-radius: 4px;
-    }
-    .table-responsive::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 4px;
-    }
-    .table-responsive::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
-    .admin-table th, .admin-table td {
-      white-space: nowrap;
-    }
-    
     @media (max-width: 768px) {
       .form-row {
         grid-template-columns: 1fr !important;
@@ -267,6 +275,11 @@
       }
       .admin-card {
         padding: 1.25rem 1rem;
+        min-width: 0;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
       }
       .admin-card h3 {
         font-size: 1.15rem !important;
@@ -281,6 +294,18 @@
       .pin-box {
         padding: 2rem 1.5rem !important;
         max-width: 90% !important;
+      }
+      /* Compact stacked stats boxes on mobile */
+      .admin-stat-box {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem !important;
+        padding: 1rem 0.85rem !important;
+      }
+      .admin-stat-icon {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 1rem !important;
       }
     }
     
