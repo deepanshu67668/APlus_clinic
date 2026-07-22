@@ -1837,6 +1837,69 @@
     </main>
   </div>
 
+  <!-- Lead / Appointment Detail Modal -->
+  <div class="modal-overlay" id="leadDetailModal">
+    <div class="modal-box" style="max-width: 550px; padding: 2rem;">
+      <button class="modal-close-btn" onclick="closeLeadDetailModal()"><i class="fa-solid fa-xmark"></i></button>
+      
+      <div style="text-align: center; margin-bottom: 1.5rem;">
+        <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(56, 189, 248, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem auto; font-size: 1.8rem;">
+          <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        <h3 style="font-size: 1.35rem; color: var(--secondary); margin-bottom: 0.25rem;">Booking Details</h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary);" id="leadDetailSubtitle">Lead ID: N/A</p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 1rem; border-top: 1px solid #f1f5f9; padding-top: 1.25rem; margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f8fafc; padding-bottom: 0.5rem;">
+          <span style="font-weight: 600; color: var(--text-secondary);">Patient Name:</span>
+          <strong id="leadDetailName" style="color: var(--secondary);">N/A</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f8fafc; padding-bottom: 0.5rem;">
+          <span style="font-weight: 600; color: var(--text-secondary);">Mobile Number:</span>
+          <strong id="leadDetailPhone">N/A</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f8fafc; padding-bottom: 0.5rem;">
+          <span style="font-weight: 600; color: var(--text-secondary);">Treatment Requested:</span>
+          <span id="leadDetailTreatment" class="badge badge-gold">N/A</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f8fafc; padding-bottom: 0.5rem;">
+          <span style="font-weight: 600; color: var(--text-secondary);">Clinic Branch:</span>
+          <span id="leadDetailBranch" class="badge badge-primary">N/A</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f8fafc; padding-bottom: 0.5rem;">
+          <span style="font-weight: 600; color: var(--text-secondary);">Appointment Date:</span>
+          <strong id="leadDetailDate">N/A</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f8fafc; padding-bottom: 0.5rem;">
+          <span style="font-weight: 600; color: var(--text-secondary);">Preferred Time Slot:</span>
+          <strong id="leadDetailTimeSlot">N/A</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f8fafc; padding-bottom: 0.5rem;">
+          <span style="font-weight: 600; color: var(--text-secondary);">Received Time:</span>
+          <span id="leadDetailTimestamp" style="font-size: 0.85rem; color: var(--text-secondary);">N/A</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f8fafc; padding-bottom: 0.5rem;">
+          <span style="font-weight: 600; color: var(--text-secondary);">Booking Source:</span>
+          <span id="leadDetailSource" class="badge" style="background: #e2e8f0; color: #475569;">N/A</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f8fafc; padding-bottom: 0.5rem;">
+          <span style="font-weight: 600; color: var(--text-secondary);">Leads Status:</span>
+          <span id="leadDetailStatus" class="badge">N/A</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+          <span style="font-weight: 600; color: var(--text-secondary);">Patient's Message / Notes:</span>
+          <div id="leadDetailMessage" style="background: #f8fafc; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid #e2e8f0; font-size: 0.88rem; min-height: 50px; color: var(--text-secondary);">No message submitted.</div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; justify-content: space-between;">
+        <button class="btn btn-outline" id="leadDetailToggleStatusBtn" onclick="toggleAppointmentStatusFromModal()" style="flex: 1;"><i class="fa-solid fa-arrows-spin"></i> Toggle Status</button>
+        <button class="btn btn-primary" id="leadDetailConvertBtn" onclick="convertLeadToPatient()" style="flex: 1;"><i class="fa-solid fa-user-plus"></i> Convert to Patient</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Patient Profile Multi-Tab Modal -->
   <div class="modal-overlay" id="patientProfileModal">
     <div class="modal-box" style="max-width: 900px; padding: 2rem;">

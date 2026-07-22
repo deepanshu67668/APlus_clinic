@@ -466,6 +466,7 @@ function renderAppointmentsTables() {
             </button>
           </td>
           <td>
+            <button onclick="openLeadDetailModal('${safeId}')" style="background: transparent; border: none; color: var(--primary); font-size: 1.1rem; cursor: pointer; margin-right: 0.5rem;" title="View Complete Detail"><i class="fa-solid fa-eye"></i></button>
             <button onclick="deleteAppointment('${safeId}')" style="background: transparent; border: none; color: #be123c; font-size: 1.1rem; cursor: pointer;" title="Delete Lead"><i class="fa-solid fa-trash-can"></i></button>
           </td>
         </tr>
@@ -1351,6 +1352,7 @@ function renderPatientsTable() {
         <td>${lastDoc}</td>
         <td><span class="badge" style="background: #dcfce7; color: #166534;">${p.status || 'Active'}</span></td>
         <td>
+          <button onclick="viewPatientProfile('${p.id}')" style="background: transparent; color: var(--secondary); font-size: 1.1rem; margin-right: 0.5rem; cursor: pointer;" title="View Complete Profile"><i class="fa-solid fa-eye"></i></button>
           <button onclick="editPatient('${p.id}')" style="background: transparent; color: var(--primary); font-size: 1.1rem; margin-right: 0.5rem; cursor: pointer;" title="Edit Patient"><i class="fa-solid fa-pen-to-square"></i></button>
           <button onclick="deletePatient('${p.id}')" style="background: transparent; color: #be123c; font-size: 1.1rem; cursor: pointer;" title="Delete Patient"><i class="fa-solid fa-trash-can"></i></button>
         </td>
@@ -3019,3 +3021,83 @@ renderStats = function() {
     renderAuditLogsTable();
   }
 };
+
+/* ==========================================================================
+   MODULE 4: LEADS & BOOKING DETAIL VIEW HANDLERS
+   ========================================================================== */
+
+let currentActiveModalLeadId = null;
+
+function openLeadDetailModal(id) {
+  currentActiveModalLeadId = id;
+  const apts = getAllMergedLeads();
+  const lead = apts.find(a => String(a.id) === String(id));
+  if (!lead) {
+    showToast('Lead details not found!', true);
+    return;
+  }
+
+  document.getElementById('leadDetailSubtitle').textContent = `Lead ID: ${lead.id}`;
+  document.getElementById('leadDetailName').textContent = lead.name || 'N/A';
+  document.getElementById('leadDetailPhone').innerHTML = `<a href="tel:${lead.phone}" style="color: var(--primary); font-weight: 700;"><i class="fa-solid fa-phone"></i> ${lead.phone}</a>`;
+  document.getElementById('leadDetailTreatment').textContent = lead.treatment || 'General Consultation';
+  document.getElementById('leadDetailBranch').textContent = lead.branch || 'Rajender Nagar';
+  document.getElementById('leadDetailDate').textContent = lead.date || 'N/A';
+  document.getElementById('leadDetailTimeSlot').textContent = lead.timeSlot || lead.time || 'Morning';
+  document.getElementById('leadDetailTimestamp').textContent = lead.timestamp || 'N/A';
+  document.getElementById('leadDetailSource').textContent = lead.source || 'Website';
+  
+  const statusEl = document.getElementById('leadDetailStatus');
+  const status = lead.status || 'New';
+  statusEl.textContent = status;
+  statusEl.className = `badge ${status === 'Contacted' ? 'badge-cghs' : 'badge-gold'}`;
+
+  document.getElementById('leadDetailMessage').textContent = lead.message || lead.notes || 'No message submitted.';
+
+  document.getElementById('leadDetailModal').classList.add('active');
+  logSystemAuditEvent(`Viewed detailed card box of Lead ID: ${lead.id}`);
+}
+
+function closeLeadDetailModal() {
+  const modal = document.getElementById('leadDetailModal');
+  if (modal) modal.classList.remove('active');
+  currentActiveModalLeadId = null;
+}
+
+function toggleAppointmentStatusFromModal() {
+  if (!currentActiveModalLeadId) return;
+  toggleAppointmentStatus(currentActiveModalLeadId);
+  // Re-load the modal content after state updates
+  setTimeout(() => {
+    openLeadDetailModal(currentActiveModalLeadId);
+  }, 300);
+}
+
+function convertLeadToPatient() {
+  if (!currentActiveModalLeadId) return;
+  const apts = getAllMergedLeads();
+  const lead = apts.find(a => String(a.id) === String(currentActiveModalLeadId));
+  if (!lead) return;
+
+  closeLeadDetailModal();
+  
+  // Switch to Patient Management tab
+  switchAdminTab('patients');
+
+  // Fill in the patient registration form
+  const fullName = lead.name || '';
+  const nameParts = fullName.trim().split(/\s+/);
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || '';
+
+  const fNameInput = document.getElementById('patientFirstName');
+  const lNameInput = document.getElementById('patientLastName');
+  const phoneInput = document.getElementById('patientMobile');
+  
+  if (fNameInput) fNameInput.value = firstName;
+  if (lNameInput) lNameInput.value = lastName;
+  if (phoneInput) phoneInput.value = lead.phone || '';
+  
+  showToast('Lead details pre-filled in Patient Registration Form!');
+}
+
