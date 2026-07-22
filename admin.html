@@ -164,15 +164,16 @@
     /* Responsive Styling for Mobile Devices */
     .admin-mobile-header {
       display: none;
-      background: var(--secondary);
+      background: #0f172a !important;
       color: white;
-      padding: 0.85rem 1.25rem;
+      padding: 0.55rem 1rem !important;
       justify-content: space-between;
       align-items: center;
       position: sticky;
       top: 0;
       z-index: 1500;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
     }
     .mobile-menu-toggle {
       background: transparent;
@@ -221,10 +222,7 @@
         padding: 1.25rem 1rem;
       }
       .admin-header {
-        padding: 1rem;
-        flex-direction: column;
-        gap: 0.85rem;
-        align-items: flex-start;
+        display: none !important;
       }
       .admin-stats-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -289,11 +287,11 @@
     
     <!-- Mobile Navigation Top Bar -->
     <div class="admin-mobile-header">
-      <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <div style="display: flex; align-items: center; gap: 0.65rem;">
         <button class="mobile-menu-toggle" id="mobileMenuOpen"><i class="fa-solid fa-bars"></i></button>
-        <span style="font-weight: 800; font-size: 1.05rem; font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;">A PLUS DENTAL</span>
+        <span id="mobileTabTitle" style="font-weight: 800; font-size: 0.85rem; font-family: 'Outfit', sans-serif; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px;">Dashboard Overview</span>
       </div>
-      <a href="index.html" class="btn btn-primary" style="padding: 0.45rem 0.75rem; font-size: 0.75rem;" target="_blank"><i class="fa-solid fa-square-arrow-up-right"></i> Live Site</a>
+      <a href="index.html" class="btn btn-primary" style="padding: 0.35rem 0.65rem; font-size: 0.72rem; border-radius: var(--radius-sm);" target="_blank"><i class="fa-solid fa-square-arrow-up-right"></i> Live Site</a>
     </div>
 
     <!-- Sidebar Slide-out Backdrop Overlay -->

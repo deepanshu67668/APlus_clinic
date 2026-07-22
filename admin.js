@@ -198,7 +198,12 @@ function switchAdminTab(tabKey, btn) {
     blogs: 'Manage Oral Health Blogs & Articles',
     reviews: 'Manage Patient Reviews'
   };
-  document.getElementById('tabTitle').textContent = titles[tabKey] || 'Admin Dashboard';
+  const titleText = titles[tabKey] || 'Admin Dashboard';
+  const mainTitle = document.getElementById('tabTitle');
+  if (mainTitle) mainTitle.textContent = titleText;
+  
+  const mobileTitle = document.getElementById('mobileTabTitle');
+  if (mobileTitle) mobileTitle.textContent = titleText;
 
   // Immediately refresh and sync all data tables on tab switch
   loadDashboardData();
