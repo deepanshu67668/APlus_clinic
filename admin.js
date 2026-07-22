@@ -6,6 +6,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   initPinAuth();
   initAdminCloudListeners();
+  initMobileMenuToggle();
 
   // Real-time auto sync when forms are filled on index.html in another tab
   window.addEventListener('storage', () => {
@@ -145,6 +146,25 @@ function lockAdmin() {
   window.location.reload();
 }
 
+// Mobile Navigation Controls
+function initMobileMenuToggle() {
+  const openBtn = document.getElementById('mobileMenuOpen');
+  const overlay = document.getElementById('sidebarOverlay');
+  const sidebar = document.querySelector('.admin-sidebar');
+
+  if (openBtn && sidebar && overlay) {
+    openBtn.addEventListener('click', () => {
+      sidebar.classList.add('open');
+      overlay.classList.add('active');
+    });
+
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('active');
+    });
+  }
+}
+
 // Tab Switching
 function switchAdminTab(tabKey, btn) {
   const tabs = document.querySelectorAll('.admin-tab-content');
@@ -159,6 +179,14 @@ function switchAdminTab(tabKey, btn) {
   }
   if (btn) {
     btn.classList.add('active');
+  }
+
+  // Close sliding sidebar on mobile after tab select
+  const sidebar = document.querySelector('.admin-sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar && overlay) {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
   }
 
   const titles = {

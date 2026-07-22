@@ -161,10 +161,107 @@
       color: var(--secondary);
     }
     
+    /* Responsive Styling for Mobile Devices */
+    .admin-mobile-header {
+      display: none;
+      background: var(--secondary);
+      color: white;
+      padding: 0.85rem 1.25rem;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1500;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    .mobile-menu-toggle {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 1.35rem;
+      cursor: pointer;
+      padding: 0.25rem;
+    }
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1900;
+    }
+    
     @media (max-width: 1024px) {
-      .admin-layout { grid-template-columns: 1fr; }
-      .admin-sidebar { display: none; }
-      .admin-stats-grid { grid-template-columns: 1fr 1fr; }
+      .admin-layout {
+        grid-template-columns: 1fr;
+      }
+      .admin-mobile-header {
+        display: flex;
+      }
+      .admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: -280px;
+        bottom: 0;
+        width: 280px;
+        z-index: 2000;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 10px 0 25px rgba(0,0,0,0.15);
+      }
+      .admin-sidebar.open {
+        left: 0;
+      }
+      .sidebar-overlay.active {
+        display: block;
+      }
+      .admin-main {
+        padding: 1.25rem 1rem;
+      }
+      .admin-header {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 0.85rem;
+        align-items: flex-start;
+      }
+      .admin-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+      .admin-stat-box {
+        padding: 1rem;
+        gap: 0.75rem;
+      }
+      .admin-stat-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.2rem;
+      }
+      .admin-stat-num {
+        font-size: 1.4rem;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr !important;
+        gap: 0.85rem !important;
+      }
+      .admin-card {
+        padding: 1.25rem 1rem;
+      }
+      .admin-table th, .admin-table td {
+        padding: 0.75rem 0.65rem;
+        font-size: 0.82rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .admin-stats-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -189,6 +286,18 @@
 
   <!-- Admin Dashboard Layout -->
   <div class="admin-layout" id="adminDashboardLayout" style="display: none;">
+    
+    <!-- Mobile Navigation Top Bar -->
+    <div class="admin-mobile-header">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <button class="mobile-menu-toggle" id="mobileMenuOpen"><i class="fa-solid fa-bars"></i></button>
+        <span style="font-weight: 800; font-size: 1.05rem; font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;">A PLUS DENTAL</span>
+      </div>
+      <a href="index.html" class="btn btn-primary" style="padding: 0.45rem 0.75rem; font-size: 0.75rem;" target="_blank"><i class="fa-solid fa-square-arrow-up-right"></i> Live Site</a>
+    </div>
+
+    <!-- Sidebar Slide-out Backdrop Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
     
     <!-- Sidebar Navigation -->
     <aside class="admin-sidebar">

@@ -4,12 +4,12 @@
    ========================================================================== */
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA_APlusDentalClinicDemoKey2026",
-  authDomain: "aplus-dental-clinic-78386.firebaseapp.com",
-  projectId: "aplus-dental-clinic-78386",
-  storageBucket: "aplus-dental-clinic-78386.appspot.com",
-  messagingSenderId: "987654321012",
-  appId: "1:987654321012:web:a1b2c3d4e5f67890"
+  apiKey: "AIzaSyD-placeholder-key-for-aplus-842ec",
+  authDomain: "aplus-842ec.firebaseapp.com",
+  projectId: "aplus-842ec",
+  storageBucket: "aplus-842ec.appspot.com",
+  messagingSenderId: "123456789012",
+  appId: "1:123456789012:web:a1b2c3d4e5f67890"
 };
 
 let db = null;
