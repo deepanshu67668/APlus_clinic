@@ -20,52 +20,52 @@ document.addEventListener('DOMContentLoaded', () => {
   initCloudRealtimeListeners();
 });
 
-// Real-Time Firebase Cloud Firestore Synchronization Listener
+// Real-Time Firebase Realtime Database Synchronization Listener
 function initCloudRealtimeListeners() {
   if (typeof db === 'undefined' || !db) return;
 
   try {
-    db.collection('treatments').onSnapshot(snapshot => {
-      if (snapshot && !snapshot.empty) {
-        const cloudData = [];
-        snapshot.forEach(doc => cloudData.push(doc.data()));
-        localStorage.setItem('aplus_treatments', JSON.stringify(cloudData));
+    db.ref('treatments').on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const list = Object.keys(data).map(key => data[key]);
+        localStorage.setItem('aplus_treatments', JSON.stringify(list));
         renderDynamicTreatments();
       }
     });
 
-    db.collection('doctors').onSnapshot(snapshot => {
-      if (snapshot && !snapshot.empty) {
-        const cloudData = [];
-        snapshot.forEach(doc => cloudData.push(doc.data()));
-        localStorage.setItem('aplus_doctors', JSON.stringify(cloudData));
+    db.ref('doctors').on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const list = Object.keys(data).map(key => data[key]);
+        localStorage.setItem('aplus_doctors', JSON.stringify(list));
         renderDynamicDoctors();
       }
     });
 
-    db.collection('gallery').onSnapshot(snapshot => {
-      if (snapshot && !snapshot.empty) {
-        const cloudData = [];
-        snapshot.forEach(doc => cloudData.push(doc.data()));
-        localStorage.setItem('aplus_gallery', JSON.stringify(cloudData));
+    db.ref('gallery').on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const list = Object.keys(data).map(key => data[key]);
+        localStorage.setItem('aplus_gallery', JSON.stringify(list));
         renderDynamicGallery();
       }
     });
 
-    db.collection('blogs').onSnapshot(snapshot => {
-      if (snapshot && !snapshot.empty) {
-        const cloudData = [];
-        snapshot.forEach(doc => cloudData.push(doc.data()));
-        localStorage.setItem('aplus_blogs', JSON.stringify(cloudData));
+    db.ref('blogs').on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const list = Object.keys(data).map(key => data[key]);
+        localStorage.setItem('aplus_blogs', JSON.stringify(list));
         renderDynamicBlogs();
       }
     });
 
-    db.collection('reviews').onSnapshot(snapshot => {
-      if (snapshot && !snapshot.empty) {
-        const cloudData = [];
-        snapshot.forEach(doc => cloudData.push(doc.data()));
-        localStorage.setItem('aplus_reviews', JSON.stringify(cloudData));
+    db.ref('reviews').on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const list = Object.keys(data).map(key => data[key]);
+        localStorage.setItem('aplus_reviews', JSON.stringify(list));
         renderDynamicReviews();
       }
     });
@@ -786,9 +786,9 @@ function saveAppointment(apt) {
   apt.timeSlot = apt.timeSlot || '09:00 AM - 10:00 AM';
   apt.status = 'New';
 
-  // Cloud Firestore Real-Time Write
+  // Firebase Realtime Database Write
   if (typeof db !== 'undefined' && db) {
-    db.collection('appointments').doc(apt.id).set(apt).catch(e => console.log('Cloud Firestore write note:', e));
+    db.ref('appointments/' + apt.id).set(apt).catch(e => console.log('Firebase Realtime DB write note:', e));
   }
 
   let list = JSON.parse(localStorage.getItem('aplus_appointments') || '[]');

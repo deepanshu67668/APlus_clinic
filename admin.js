@@ -22,92 +22,83 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 2000);
 });
 
-// Real-Time Firebase Cloud Firestore Synchronization Listener for Admin Panel
+// Real-Time Firebase Realtime Database Synchronization Listener for Admin Panel
 function initAdminCloudListeners() {
   if (typeof db === 'undefined' || !db) return;
 
   try {
-    db.collection('appointments').onSnapshot(snapshot => {
-      if (snapshot) {
-        const apts = [];
-        snapshot.forEach(doc => apts.push(doc.data()));
-        localStorage.setItem('aplus_appointments', JSON.stringify(apts));
-        renderAppointmentsTables();
+    db.ref('appointments').on('value', snapshot => {
+      const data = snapshot.val();
+      const list = [];
+      if (data) {
+        Object.keys(data).forEach(key => {
+          if (data[key]) list.push(data[key]);
+        });
+      }
+      localStorage.setItem('aplus_appointments', JSON.stringify(list));
+      renderAppointmentsTables();
+      renderStats();
+    });
+
+    db.ref('treatments').on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const list = Object.keys(data).map(key => data[key]);
+        localStorage.setItem('aplus_treatments', JSON.stringify(list));
+        renderTreatmentsTable();
         renderStats();
       }
     });
 
-    db.collection('treatments').onSnapshot(snapshot => {
-      if (snapshot) {
-        const treats = [];
-        snapshot.forEach(doc => treats.push(doc.data()));
-        if (treats.length > 0) {
-          localStorage.setItem('aplus_treatments', JSON.stringify(treats));
-          renderTreatmentsTable();
-          renderStats();
-        }
+    db.ref('doctors').on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const list = Object.keys(data).map(key => data[key]);
+        localStorage.setItem('aplus_doctors', JSON.stringify(list));
+        renderDoctorsTable();
+        renderStats();
       }
     });
 
-    db.collection('doctors').onSnapshot(snapshot => {
-      if (snapshot) {
-        const docs = [];
-        snapshot.forEach(doc => docs.push(doc.data()));
-        if (docs.length > 0) {
-          localStorage.setItem('aplus_doctors', JSON.stringify(docs));
-          renderDoctorsTable();
-          renderStats();
-        }
+    db.ref('team').on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const list = Object.keys(data).map(key => data[key]);
+        localStorage.setItem('aplus_team', JSON.stringify(list));
+        renderTeamTable();
       }
     });
 
-    db.collection('team').onSnapshot(snapshot => {
-      if (snapshot) {
-        const team = [];
-        snapshot.forEach(doc => team.push(doc.data()));
-        if (team.length > 0) {
-          localStorage.setItem('aplus_team', JSON.stringify(team));
-          renderTeamTable();
-        }
+    db.ref('gallery').on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const list = Object.keys(data).map(key => data[key]);
+        localStorage.setItem('aplus_gallery', JSON.stringify(list));
+        renderGalleryTable();
       }
     });
 
-    db.collection('gallery').onSnapshot(snapshot => {
-      if (snapshot) {
-        const gal = [];
-        snapshot.forEach(doc => gal.push(doc.data()));
-        if (gal.length > 0) {
-          localStorage.setItem('aplus_gallery', JSON.stringify(gal));
-          renderGalleryTable();
-        }
+    db.ref('blogs').on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const list = Object.keys(data).map(key => data[key]);
+        localStorage.setItem('aplus_blogs', JSON.stringify(list));
+        renderBlogsTable();
+        renderStats();
       }
     });
 
-    db.collection('blogs').onSnapshot(snapshot => {
-      if (snapshot) {
-        const blogs = [];
-        snapshot.forEach(doc => blogs.push(doc.data()));
-        if (blogs.length > 0) {
-          localStorage.setItem('aplus_blogs', JSON.stringify(blogs));
-          renderBlogsTable();
-          renderStats();
-        }
-      }
-    });
-
-    db.collection('reviews').onSnapshot(snapshot => {
-      if (snapshot) {
-        const revs = [];
-        snapshot.forEach(doc => revs.push(doc.data()));
-        if (revs.length > 0) {
-          localStorage.setItem('aplus_reviews', JSON.stringify(revs));
-          renderReviewsTable();
-          renderStats();
-        }
+    db.ref('reviews').on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const list = Object.keys(data).map(key => data[key]);
+        localStorage.setItem('aplus_reviews', JSON.stringify(list));
+        renderReviewsTable();
+        renderStats();
       }
     });
   } catch (e) {
-    console.warn('Admin realtime cloud sync initialized in fallback mode.', e);
+    console.warn('Admin realtime database sync initialized in fallback mode.', e);
   }
 }
 
@@ -372,7 +363,7 @@ function toggleAppointmentStatus(id) {
     if (a && a.id === id) {
       a.status = a.status === 'Contacted' ? 'New' : 'Contacted';
       if (typeof db !== 'undefined' && db) {
-        db.collection('appointments').doc(id).set(a).catch(e => console.log(e));
+        db.ref('appointments/' + id).set(a).catch(e => console.log(e));
       }
     }
     return a;
@@ -384,7 +375,7 @@ function toggleAppointmentStatus(id) {
 
 function deleteAppointment(id) {
   if (typeof db !== 'undefined' && db) {
-    db.collection('appointments').doc(id).delete().catch(e => console.log(e));
+    db.ref('appointments/' + id).remove().catch(e => console.log(e));
   }
 
   let apts = JSON.parse(localStorage.getItem('aplus_appointments') || '[]');
@@ -403,9 +394,7 @@ function deleteAppointment(id) {
 function clearAllAppointments() {
   if (confirm('Are you sure you want to delete all patient leads?')) {
     if (typeof db !== 'undefined' && db) {
-      db.collection('appointments').get().then(snap => {
-        snap.forEach(doc => doc.ref.delete());
-      }).catch(e => console.log(e));
+      db.ref('appointments').remove().catch(e => console.log(e));
     }
 
     localStorage.removeItem('aplus_appointments');
@@ -437,7 +426,7 @@ if (treatForm) {
     };
 
     if (typeof db !== 'undefined' && db) {
-      db.collection('treatments').doc(newTreat.id).set(newTreat).catch(e => console.log(e));
+      db.ref('treatments/' + newTreat.id).set(newTreat).catch(e => console.log(e));
     }
 
     if (editId) {
@@ -482,7 +471,7 @@ function editTreatment(id) {
 function deleteTreatment(id) {
   if (confirm('Delete this treatment service?')) {
     if (typeof db !== 'undefined' && db) {
-      db.collection('treatments').doc(id).delete().catch(e => console.log(e));
+      db.ref('treatments/' + id).remove().catch(e => console.log(e));
     }
 
     let treats = JSON.parse(localStorage.getItem('aplus_treatments') || '[]');
@@ -545,7 +534,7 @@ if (docForm) {
           bio: bio || 'Senior Specialist Dental Surgeon at A Plus Dental Clinic.'
         };
         if (typeof db !== 'undefined' && db) {
-          db.collection('doctors').doc(docItem.id).set(docItem).catch(e => console.log(e));
+          db.ref('doctors/' + docItem.id).set(docItem).catch(e => console.log(e));
         }
         if (editId) {
           docs = docs.map(d => d.id === editId ? docItem : d);
@@ -566,7 +555,7 @@ if (docForm) {
           img: photoUrl
         };
         if (typeof db !== 'undefined' && db) {
-          db.collection('team').doc(teamItem.id).set(teamItem).catch(e => console.log(e));
+          db.ref('team/' + teamItem.id).set(teamItem).catch(e => console.log(e));
         }
         if (editId) {
           team = team.map(t => t.id === editId ? teamItem : t);
@@ -651,7 +640,7 @@ function editTeamMember(id) {
 function deleteDoctor(id) {
   if (confirm('Delete doctor profile?')) {
     if (typeof db !== 'undefined' && db) {
-      db.collection('doctors').doc(id).delete().catch(e => console.log(e));
+      db.ref('doctors/' + id).remove().catch(e => console.log(e));
     }
 
     let docs = JSON.parse(localStorage.getItem('aplus_doctors') || '[]');
@@ -666,7 +655,7 @@ function deleteDoctor(id) {
 function deleteTeamMember(id) {
   if (confirm('Delete associate team member?')) {
     if (typeof db !== 'undefined' && db) {
-      db.collection('team').doc(id).delete().catch(e => console.log(e));
+      db.ref('team/' + id).remove().catch(e => console.log(e));
     }
 
     let team = JSON.parse(localStorage.getItem('aplus_team') || '[]');
@@ -733,7 +722,7 @@ if (galForm) {
         caption: caption
       };
       if (typeof db !== 'undefined' && db) {
-        db.collection('gallery').doc(item.id).set(item).catch(e => console.log(e));
+        db.ref('gallery/' + item.id).set(item).catch(e => console.log(e));
       }
       if (editId) {
         gal = gal.map(g => g.id === editId ? item : g);
@@ -789,7 +778,7 @@ function editGalleryItem(id) {
 function deleteGalleryItem(id) {
   if (confirm('Delete this gallery photo?')) {
     if (typeof db !== 'undefined' && db) {
-      db.collection('gallery').doc(id).delete().catch(e => console.log(e));
+      db.ref('gallery/' + id).remove().catch(e => console.log(e));
     }
 
     let gal = JSON.parse(localStorage.getItem('aplus_gallery') || '[]');
@@ -855,7 +844,7 @@ if (blogForm) {
       };
 
       if (typeof db !== 'undefined' && db) {
-        db.collection('blogs').doc(newBlog.id).set(newBlog).catch(e => console.log(e));
+        db.ref('blogs/' + newBlog.id).set(newBlog).catch(e => console.log(e));
       }
 
       if (editId) {
@@ -916,7 +905,7 @@ function editBlog(id) {
 function deleteBlog(id) {
   if (confirm('Delete this article?')) {
     if (typeof db !== 'undefined' && db) {
-      db.collection('blogs').doc(id).delete().catch(e => console.log(e));
+      db.ref('blogs/' + id).remove().catch(e => console.log(e));
     }
 
     let blogs = JSON.parse(localStorage.getItem('aplus_blogs') || '[]');
@@ -965,7 +954,7 @@ if (revForm) {
     };
 
     if (typeof db !== 'undefined' && db) {
-      db.collection('reviews').doc(item.id).set(item).catch(e => console.log(e));
+      db.ref('reviews/' + item.id).set(item).catch(e => console.log(e));
     }
 
     if (editId) {
@@ -1013,7 +1002,7 @@ function editReview(id) {
 function deleteReview(id) {
   if (confirm('Delete patient review?')) {
     if (typeof db !== 'undefined' && db) {
-      db.collection('reviews').doc(id).delete().catch(e => console.log(e));
+      db.ref('reviews/' + id).remove().catch(e => console.log(e));
     }
 
     let revs = JSON.parse(localStorage.getItem('aplus_reviews') || '[]');
