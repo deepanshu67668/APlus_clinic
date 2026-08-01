@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
   renderDynamicGallery();
   renderDynamicBlogs();
   renderDynamicReviews();
+  renderDynamicServicesTicker();
+  updateAboutImage(localStorage.getItem('aplus_about_image'));
   
   initDateInput();
   initMobileNav();
@@ -69,6 +71,43 @@ function initCloudRealtimeListeners() {
         renderDynamicReviews();
       }
     });
+
+    db.ref('services_ticker').on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const list = Object.keys(data).map(key => data[key]);
+        localStorage.setItem('aplus_services_ticker', JSON.stringify(list));
+        renderDynamicServicesTicker();
+      } else {
+        const defaultServices = [
+          { id: '1', title: 'DENTAL IMPLANTS', img: 'assets/treatment_implants.jpg' },
+          { id: '2', title: 'ROOT CANAL TREATMENT', img: 'assets/treatment_root_canal.jpg' },
+          { id: '3', title: 'ORTHODONTIC TREATMENT', img: 'assets/treatment_orthodontic.jpg' },
+          { id: '4', title: 'IMPACTION', img: 'assets/treatment_impaction.jpg' },
+          { id: '5', title: 'PEDIATRIC DENTISTRY', img: 'assets/treatment_pediatric.jpg' },
+          { id: '6', title: 'PERIODONTAL TREATMENT', img: 'assets/treatment_periodontal.jpg' },
+          { id: '7', title: 'FULL MOUTH REHABILITATION', img: 'assets/treatment_full_mouth.jpg' },
+          { id: '8', title: 'SMILE DESIGN', img: 'assets/treatment_smile_design.jpg' },
+          { id: '9', title: 'OPG SCAN AVAILABLE', img: 'assets/treatment_opg_scan.jpg' },
+          { id: '10', title: 'DIGITAL INTRAORAL SCAN', img: 'assets/treatment_digital_scan.jpg' },
+          { id: '11', title: 'JAW FRACTURE', img: 'assets/treatment_jaw_fracture.jpg' },
+          { id: '12', title: 'ORAL CANCER DIAGNOSIS', img: 'assets/treatment_oral_cancer.jpg' },
+          { id: '13', title: 'LASER TREATMENT', img: 'assets/treatment_laser.jpg' },
+          { id: '14', title: 'ZIRCONIA CROWN', img: 'assets/treatment_zirconia_crown.jpg' }
+        ];
+        db.ref('services_ticker').set(defaultServices);
+        localStorage.setItem('aplus_services_ticker', JSON.stringify(defaultServices));
+        renderDynamicServicesTicker();
+      }
+    });
+
+    db.ref('about_image').on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        localStorage.setItem('aplus_about_image', data);
+        updateAboutImage(data);
+      }
+    });
   } catch (e) {
     console.warn('Realtime cloud sync initialized in fallback mode.', e);
   }
@@ -95,6 +134,48 @@ function closeFullGalleryModal() {
   const modal = document.getElementById('fullGalleryModal');
   if (modal) modal.classList.remove('active');
 }
+
+// Dedicated Booking Form Modal Controls
+function openBookingModal() {
+  const modal = document.getElementById('bookingModal');
+  if (modal) modal.classList.add('active');
+  initModalDateInput();
+}
+
+function closeBookingModal() {
+  const modal = document.getElementById('bookingModal');
+  if (modal) modal.classList.remove('active');
+}
+
+function initModalDateInput() {
+  const dateInput = document.getElementById('modalAppointmentDate');
+  if (!dateInput) return;
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  dateInput.min = `${yyyy}-${mm}-${dd}`;
+  if (!dateInput.value) {
+    dateInput.value = `${yyyy}-${mm}-${dd}`;
+  }
+}
+
+function checkModalTimeSlotAvailability() {
+  const date = document.getElementById('modalAppointmentDate').value;
+  const slot = document.getElementById('modalAppointmentTimeSlot').value;
+  const status = document.getElementById('modalSlotStatusIndicator');
+  if (!status) return;
+  
+  if (date && slot) {
+    status.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>Slot Available for ${slot}</span>`;
+    status.style.color = '#16a34a';
+    status.style.background = 'rgba(34, 197, 94, 0.08)';
+  }
+}
+
+window.openBookingModal = openBookingModal;
+window.closeBookingModal = closeBookingModal;
+window.checkModalTimeSlotAvailability = checkModalTimeSlotAvailability;
 
 // Corporate Dental Camp Form Handler
 function initCorporateCampForm() {
@@ -189,6 +270,8 @@ function initHeroSlideshow() {
   }, 4000);
 }
 
+
+
 // Default Initial Data Seed for LocalStorage
 function initStorageSeed() {
   const getStoredLen = (key) => {
@@ -199,7 +282,7 @@ function initStorageSeed() {
     }
   };
 
-  if (!localStorage.getItem('aplus_treatments') || getStoredLen('aplus_treatments') === 0) {
+  if (!localStorage.getItem('aplus_treatments') || getStoredLen('aplus_treatments') !== 8) {
     const defaultTreatments = [
       {
         id: 'implants',
@@ -207,7 +290,6 @@ function initStorageSeed() {
         badge: '30% OFF Special',
         img: 'assets/dental_implants.jpg',
         desc: 'Permanent, natural-looking tooth replacement solution using titanium implants & porcelain crowns.',
-        price: '₹18,000',
         features: [
           'Lifetime Warranty on Titanium Implants',
           'Preserves adjacent natural teeth',
@@ -221,7 +303,6 @@ function initStorageSeed() {
         badge: 'Single Sitting',
         img: 'assets/hero_clinic.jpg',
         desc: 'Save infected or damaged natural teeth with painless rotary microscopic endodontic treatment.',
-        price: '₹3,500',
         features: [
           'Rotary apex locators & painless anesthesia',
           'Done in 30-45 minutes',
@@ -235,7 +316,6 @@ function initStorageSeed() {
         badge: '30% OFF Special',
         img: 'assets/clear_aligners.jpg',
         desc: 'Straighten crooked teeth discreetly with 3D custom transparent aligners or ceramic braces.',
-        price: '₹35,000',
         features: [
           'Nearly invisible clear trays',
           'Removable for easy eating & brushing',
@@ -249,7 +329,6 @@ function initStorageSeed() {
         badge: 'Cosmetic',
         img: 'assets/clinic_reception.jpg',
         desc: 'Instant 8-shade brighter smile enhancement with laser whitening & custom porcelain veneers.',
-        price: '₹4,500',
         features: [
           'Instant 8-shade whitening',
           'Enamel-safe peroxide laser LED',
@@ -263,7 +342,6 @@ function initStorageSeed() {
         badge: 'Zirconia',
         img: 'assets/dental_implants.jpg',
         desc: 'High-strength Zirconia & CAD-CAM ceramic crowns for ultimate tooth protection & aesthetics.',
-        price: '₹4,000',
         features: [
           'Translucent natural aesthetic',
           '10-15 Year warranty against chipping',
@@ -272,17 +350,42 @@ function initStorageSeed() {
         ]
       },
       {
-        id: 'surgery',
+        id: 'minor_surgery',
+        title: 'Minor Oral Surgeries',
+        badge: 'Painless',
+        img: 'assets/hero_clinic.jpg',
+        desc: 'Routine minor oral surgical procedures including standard/surgical extractions, cyst removals, and frenectomy under local anesthesia.',
+        features: [
+          'Painless laser & suture-less options',
+          'Surgical & simple tooth extractions',
+          'Cyst, operculum, & fibroma removals',
+          'Fast healing with laser biostimulation'
+        ]
+      },
+      {
+        id: 'major_surgery',
+        title: 'Major Oral Surgeries',
+        badge: 'Specialized',
+        img: 'assets/dental_implants.jpg',
+        desc: 'Complex reconstructive maxillofacial surgeries, jaw pathology management, and corrective jaw alignments (orthognathic surgery).',
+        features: [
+          'Performed by senior Maxillofacial Surgeons',
+          'Jaw fracture treatments & trauma care',
+          'Advanced cyst & tumor pathologies',
+          'General anesthesia & hospital facility support'
+        ]
+      },
+      {
+        id: 'wisdom_surgery',
         title: 'Wisdom Tooth & Surgery',
         badge: 'Painless',
         img: 'assets/hero_clinic.jpg',
-        desc: 'Surgical removal of impacted wisdom teeth by experienced oral & maxillofacial surgeons.',
-        price: '₹2,500',
+        desc: 'Surgical removal of impacted or painful wisdom teeth by experienced oral & maxillofacial surgeons.',
         features: [
-          'Localized painless procedure',
-          'Minimizes post-op swelling',
-          'Full medication & post-op care',
-          'CGHS surgical empanelment'
+          'Localized computerized painless anesthesia',
+          'Minimizes post-op swelling & discomfort',
+          'Suture-less or soluble suture options',
+          'Complete post-operative medication guidelines'
         ]
       }
     ];
@@ -294,7 +397,7 @@ function initStorageSeed() {
       {
         id: 'dr_vishal',
         name: 'Dr. Vishal Verma',
-        degree: 'BDS, MDS - Implantologist & Oral Surgeon',
+        degree: 'BDS, MDS - Implantologist',
         badge: 'Chief Dental Surgeon',
         img: 'assets/doctor_vishal.jpg',
         bio: 'Dr. Vishal Verma is a renowned Senior Dental Surgeon & Implant Specialist with over 12+ years of clinical excellence. Specializing in advanced implantology, microscopic root canal treatments, and complex oral reconstructive surgeries.',
@@ -305,10 +408,11 @@ function initStorageSeed() {
     ];
     localStorage.setItem('aplus_doctors', JSON.stringify(defaultDoctors));
   } else {
-    // Force update existing localStorage doctor img path
+    // Force update existing localStorage doctor details
     const docs = JSON.parse(localStorage.getItem('aplus_doctors') || '[]');
     if (docs.length > 0 && docs[0].id === 'dr_vishal') {
       docs[0].img = 'assets/doctor_vishal.jpg';
+      docs[0].degree = 'BDS, MDS - Implantologist';
       localStorage.setItem('aplus_doctors', JSON.stringify(docs));
     }
   }
@@ -323,33 +427,28 @@ function initStorageSeed() {
     localStorage.setItem('aplus_team', JSON.stringify(defaultTeam));
   }
 
-  if (!localStorage.getItem('aplus_gallery') || getStoredLen('aplus_gallery') < 12) {
+  if (!localStorage.getItem('aplus_gallery') || getStoredLen('aplus_gallery') < 15) {
     const defaultGallery = [
-      { id: 'gal_1', img: 'assets/gallery_1.jpg', caption: 'A+ Dental Operatory Suite' },
-      { id: 'gal_2', img: 'assets/gallery_2.jpg', caption: '3D Digital Dental Implant Studio' },
-      { id: 'gal_3', img: 'assets/gallery_3.jpg', caption: 'Sterilization & Hygiene Bay' },
-      { id: 'gal_4', img: 'assets/gallery_4.jpg', caption: 'Invisible Clear Aligners Facility' },
-      { id: 'gal_5', img: 'assets/gallery_5.jpg', caption: 'Patient Care & Consultation Room' },
-      { id: 'gal_6', img: 'assets/gallery_6.jpg', caption: 'Reception & Welcoming Lounge' },
-      { id: 'gal_7', img: 'assets/gallery_7.jpg', caption: 'Advanced Rotary RCT Station' },
-      { id: 'gal_8', img: 'assets/gallery_8.jpg', caption: 'Laser Teeth Whitening Operatory' },
-      { id: 'gal_9', img: 'assets/gallery_9.jpg', caption: 'Intraoral 3D Scanning Suite' },
-      { id: 'gal_10', img: 'assets/gallery_10.jpg', caption: 'Sterile Surgical Operatory' },
-      { id: 'gal_11', img: 'assets/gallery_11.jpg', caption: 'CGHS & PM-JAY Patient Lounge' },
-      { id: 'gal_12', img: 'assets/gallery_12.jpg', caption: 'Happy Patient Smile Transformation' }
+      { id: 'gal_1', img: 'assets/gallery_1.jpg', caption: 'A+ Dental Operatory Suite', category: 'infrastructure' },
+      { id: 'gal_2', img: 'assets/gallery_2.jpg', caption: '3D Digital Dental Implant Studio', category: 'infrastructure' },
+      { id: 'gal_3', img: 'assets/gallery_3.jpg', caption: 'Sterilization & Hygiene Bay', category: 'infrastructure' },
+      { id: 'gal_4', img: 'assets/gallery_4.jpg', caption: 'Invisible Clear Aligners Facility', category: 'infrastructure' },
+      { id: 'gal_5', img: 'assets/gallery_5.jpg', caption: 'Patient Care & Consultation Room', category: 'infrastructure' },
+      { id: 'gal_6', img: 'assets/gallery_6.jpg', caption: 'Reception & Welcoming Lounge', category: 'infrastructure' },
+      { id: 'gal_7', img: 'assets/gallery_7.jpg', caption: 'Advanced Rotary RCT Station', category: 'infrastructure' },
+      { id: 'gal_8', img: 'assets/gallery_8.jpg', caption: 'Laser Teeth Whitening Operatory', category: 'infrastructure' },
+      { id: 'gal_9', img: 'assets/gallery_9.jpg', caption: 'Intraoral 3D Scanning Suite', category: 'infrastructure' },
+      { id: 'gal_10', img: 'assets/gallery_10.jpg', caption: 'Sterile Surgical Operatory', category: 'infrastructure' },
+      { id: 'gal_11', img: 'assets/gallery_11.jpg', caption: 'CGHS & PM-JAY Patient Lounge', category: 'infrastructure' },
+      { id: 'gal_12', img: 'assets/gallery_12.jpg', caption: 'Happy Patient Smile Transformation', category: 'patients' },
+      { id: 'gal_13', img: 'assets/dental_implants.jpg', caption: 'Dental Implant: Missing Tooth to Natural Smile Restoration', category: 'patients' },
+      { id: 'gal_14', img: 'assets/clear_aligners.jpg', caption: 'Clear Aligners: Crooked Teeth Alignment Transformation', category: 'patients' },
+      { id: 'gal_15', img: 'assets/hero_clinic.jpg', caption: 'Full Mouth Rehabilitation Case: Smile Restoration & Alignment', category: 'patients' }
     ];
     localStorage.setItem('aplus_gallery', JSON.stringify(defaultGallery));
-  } else {
-    const gal = JSON.parse(localStorage.getItem('aplus_gallery') || '[]');
-    const idx = gal.findIndex(g => g.id === 'gal_12');
-    if (idx !== -1) {
-      gal[idx].img = 'assets/gallery_12.jpg';
-      gal[idx].caption = 'Happy Patient Smile Transformation';
-      localStorage.setItem('aplus_gallery', JSON.stringify(gal));
-    }
   }
 
-  if (!localStorage.getItem('aplus_blogs') || getStoredLen('aplus_blogs') === 0) {
+  if (!localStorage.getItem('aplus_blogs') || getStoredLen('aplus_blogs') !== 6) {
     const defaultBlogs = [
       {
         id: 'blog_1',
@@ -380,12 +479,42 @@ function initStorageSeed() {
         img: 'assets/clear_aligners.jpg',
         excerpt: 'Everything you need to know about transparent invisible aligner trays for adults and teens.',
         content: 'Clear aligners are custom-molded 3D transparent plastic trays that gradually align crooked teeth into perfect position. They are virtually invisible, removable during meals, and eliminate mouth sores caused by traditional metallic wires.'
+      },
+      {
+        id: 'blog_4',
+        title: 'How to Maintain Your Dental Implants for a Lifetime',
+        category: 'Implantology',
+        author: 'Dr. Vishal Verma',
+        date: 'July 22, 2026',
+        img: 'assets/dental_implants.jpg',
+        excerpt: 'Expert guidelines on oral hygiene, cleaning tips, and follow-ups to ensure your dental implants last a lifetime.',
+        content: 'Maintaining dental implants is simple but crucial. Treat them like your natural teeth—brush twice a day, floss daily, and visit your dentist regularly. Using a soft-bristled toothbrush and non-abrasive toothpaste is recommended to protect the implant crown and avoid scratching the porcelain surface.'
+      },
+      {
+        id: 'blog_5',
+        title: 'Understanding Wisdom Tooth Pain: When is Extraction Necessary?',
+        category: 'Oral Surgery',
+        author: 'Dr. Vishal Verma',
+        date: 'July 20, 2026',
+        img: 'assets/hero_clinic.jpg',
+        excerpt: 'Learn the common signs of impacted wisdom teeth and why timely surgical removal prevents gum infection and tooth crowding.',
+        content: 'Impacted wisdom teeth can cause severe pain, swelling, and infection in the surrounding gums. If left untreated, they can damage adjacent healthy teeth or lead to cysts. Modern oral surgery makes wisdom tooth extraction a comfortable, painless procedure completed under local anesthesia.'
+      },
+      {
+        id: 'blog_6',
+        title: 'Laser Teeth Whitening: Is It Safe for Your Enamel?',
+        category: 'Cosmetic Dentistry',
+        author: 'Dr. Vishal Verma',
+        date: 'July 15, 2026',
+        img: 'assets/clinic_reception.jpg',
+        excerpt: 'An expert guide to professional laser whitening, highlighting its safety, immediate results, and sensitivity tips.',
+        content: 'Laser teeth whitening is a highly safe, FDA-approved cosmetic procedure when performed by qualified dental professionals. The laser accelerates the whitening gel, breaking down deep stains without stripping your enamel, giving you an instantly brighter smile.'
       }
     ];
     localStorage.setItem('aplus_blogs', JSON.stringify(defaultBlogs));
   }
 
-  if (!localStorage.getItem('aplus_reviews') || getStoredLen('aplus_reviews') === 0) {
+  if (!localStorage.getItem('aplus_reviews') || getStoredLen('aplus_reviews') !== 6) {
     const defaultReviews = [
       {
         id: 'rev_1',
@@ -407,6 +536,27 @@ function initStorageSeed() {
         loc: 'Indirapuram / Sahibabad',
         stars: 5,
         text: 'Got clear aligners for my daughter. Result in just 6 months is amazing! Very transparent pricing and modern equipment.'
+      },
+      {
+        id: 'rev_4',
+        name: 'Amit Verma',
+        loc: 'Sahibabad, Ghaziabad',
+        stars: 5,
+        text: 'Excellent doctor! Dr. Vishal Verma explained the wisdom tooth surgery very well. The procedure was fast, suture-less, and painless. Post-op care instructions were very detailed.'
+      },
+      {
+        id: 'rev_5',
+        name: 'Sneha Gupta',
+        loc: 'Indirapuram, Ghaziabad',
+        stars: 5,
+        text: 'Highly professional setup. Got my laser teeth whitening done and got instant 8 shades brighter teeth. The staff is polite, and the clinic follows strict sterilization guidelines.'
+      },
+      {
+        id: 'rev_6',
+        name: 'Karan Malhotra',
+        loc: 'Rajender Nagar, Sahibabad',
+        stars: 5,
+        text: 'A Plus Dental Clinic is empanelled with CGHS which helped me save costs for my fixed zirconia bridge treatment. Dr. Verma is extremely knowledgeable and patient-friendly.'
       }
     ];
     localStorage.setItem('aplus_reviews', JSON.stringify(defaultReviews));
@@ -414,6 +564,26 @@ function initStorageSeed() {
 
   if (!localStorage.getItem('aplus_appointments')) {
     localStorage.setItem('aplus_appointments', JSON.stringify([]));
+  }
+
+  if (!localStorage.getItem('aplus_services_ticker') || getStoredLen('aplus_services_ticker') === 0) {
+    const defaultServices = [
+      { id: '1', title: 'DENTAL IMPLANTS', img: 'assets/treatment_implants.jpg' },
+      { id: '2', title: 'ROOT CANAL TREATMENT', img: 'assets/treatment_root_canal.jpg' },
+      { id: '3', title: 'ORTHODONTIC TREATMENT', img: 'assets/treatment_orthodontic.jpg' },
+      { id: '4', title: 'IMPACTION', img: 'assets/treatment_impaction.jpg' },
+      { id: '5', title: 'PEDIATRIC DENTISTRY', img: 'assets/treatment_pediatric.jpg' },
+      { id: '6', title: 'PERIODONTAL TREATMENT', img: 'assets/treatment_periodontal.jpg' },
+      { id: '7', title: 'FULL MOUTH REHABILITATION', img: 'assets/treatment_full_mouth.jpg' },
+      { id: '8', title: 'SMILE DESIGN', img: 'assets/treatment_smile_design.jpg' },
+      { id: '9', title: 'OPG SCAN AVAILABLE', img: 'assets/treatment_opg_scan.jpg' },
+      { id: '10', title: 'DIGITAL INTRAORAL SCAN', img: 'assets/treatment_digital_scan.jpg' },
+      { id: '11', title: 'JAW FRACTURE', img: 'assets/treatment_jaw_fracture.jpg' },
+      { id: '12', title: 'ORAL CANCER DIAGNOSIS', img: 'assets/treatment_oral_cancer.jpg' },
+      { id: '13', title: 'LASER TREATMENT', img: 'assets/treatment_laser.jpg' },
+      { id: '14', title: 'ZIRCONIA CROWN', img: 'assets/treatment_zirconia_crown.jpg' }
+    ];
+    localStorage.setItem('aplus_services_ticker', JSON.stringify(defaultServices));
   }
 }
 
@@ -432,8 +602,7 @@ function renderDynamicTreatments() {
       <div class="treatment-body">
         <h3 class="treatment-title">${t.title}</h3>
         <p class="treatment-desc">${t.desc}</p>
-        <div class="treatment-footer">
-          <div class="treatment-price">Starts at <span>${t.price}</span></div>
+        <div class="treatment-footer" style="justify-content: flex-end;">
           <button class="learn-more-btn" onclick="openTreatmentModalById('${t.id}')">Learn More <i class="fa-solid fa-arrow-right"></i></button>
         </div>
       </div>
@@ -473,7 +642,11 @@ function renderDynamicDoctors() {
             </div>
           </div>
 
-          <a href="#book" class="btn btn-primary"><i class="fa-solid fa-calendar-check"></i> Book Consultation with ${d.name}</a>
+          <div style="font-family: 'Outfit', sans-serif; font-style: italic; font-size: 0.95rem; color: var(--primary-dark); padding: 0.85rem 1rem; border-left: 3px solid var(--primary); background: var(--primary-light); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin-top: 1.25rem; line-height: 1.5; font-weight: 500;">
+            <i class="fa-solid fa-quote-left" style="opacity: 0.3; margin-right: 0.35rem; font-size: 1.1rem; color: var(--primary);"></i>
+            "Our goal is to deliver painless, premium, and lifelong dental care for every smile." 
+            <span style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--secondary); margin-top: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; font-style: normal;">— ${d.name}</span>
+          </div>
         </div>
       </div>
     `).join('');
@@ -493,18 +666,35 @@ function renderDynamicDoctors() {
 }
 
 // Render Gallery Photos dynamically
-function renderDynamicGallery() {
+function renderDynamicGallery(filterCategory = 'all') {
   const container = document.getElementById('dynamicGalleryGrid');
   if (!container) return;
 
-  const gallery = JSON.parse(localStorage.getItem('aplus_gallery') || '[]');
+  let gallery = JSON.parse(localStorage.getItem('aplus_gallery') || '[]');
+  if (filterCategory !== 'all') {
+    gallery = gallery.filter(g => g.category === filterCategory);
+  }
+
   container.innerHTML = gallery.map(g => `
     <div class="gallery-item">
       <img src="${g.img}" alt="${g.caption}">
-      <div class="gallery-caption">${g.caption}</div>
+      <div class="gallery-caption">
+        ${g.category === 'patients' ? '<span style="font-size: 0.65rem; margin-bottom: 0.35rem; display: inline-block; padding: 0.15rem 0.5rem; background: #fef3c7; color: #d97706; border-radius: 9999px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;"><i class="fa-solid fa-right-left"></i> Before & After</span><br>' : ''}
+        ${g.caption}
+      </div>
     </div>
   `).join('');
 }
+
+// Filter Gallery Tab Handler
+window.filterGallery = function(category, btnElement) {
+  const btns = document.querySelectorAll('.gallery-tab-btn');
+  btns.forEach(btn => btn.classList.remove('active'));
+  if (btnElement) {
+    btnElement.classList.add('active');
+  }
+  renderDynamicGallery(category);
+};
 
 // Render Blogs dynamically
 function renderDynamicBlogs() {
@@ -636,9 +826,7 @@ function openTreatmentModalById(id) {
       ${featuresList}
     </ul>
 
-    <div style="background: var(--bg-main); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; font-weight: 700; color: var(--primary-dark); font-size: 1rem;">
-      <i class="fa-solid fa-tag"></i> Price: Starts at ${data.price}
-    </div>
+
 
     <div style="display: flex; gap: 1rem;">
       <a href="#book" onclick="closeTreatmentModal();" class="btn btn-primary" style="flex: 1;"><i class="fa-solid fa-calendar-check"></i> Book Consultation</a>
@@ -713,8 +901,13 @@ function initFormHandlers() {
       
       const name = document.getElementById('patientName').value.trim();
       const phone = document.getElementById('patientPhone').value.trim();
-      const branch = document.getElementById('preferredBranch').value;
-      const treatment = document.getElementById('selectedTreatment').value;
+      
+      const branchEl = document.getElementById('preferredBranch');
+      const branch = branchEl ? branchEl.value : 'Rajender Nagar';
+      
+      const treatmentEl = document.getElementById('selectedTreatment');
+      const treatment = treatmentEl ? treatmentEl.value : 'General Consultation';
+      
       const date = document.getElementById('appointmentDate').value;
       const timeSlotSelect = document.getElementById('appointmentTimeSlot');
       const timeSlot = timeSlotSelect ? timeSlotSelect.value : '09:00 AM - 10:00 AM';
@@ -747,6 +940,39 @@ function initFormHandlers() {
     });
   }
 
+  const modalForm = document.getElementById('appointmentModalForm');
+  if (modalForm) {
+    modalForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('modalPatientName').value.trim();
+      const phone = document.getElementById('modalPatientPhone').value.trim();
+      const date = document.getElementById('modalAppointmentDate').value;
+      const timeSlotSelect = document.getElementById('modalAppointmentTimeSlot');
+      const timeSlot = timeSlotSelect ? timeSlotSelect.value : '10:00 AM - 11:00 AM';
+
+      saveAppointment({
+        name,
+        phone,
+        branch: 'Rajender Nagar',
+        treatment: 'General Consultation',
+        date,
+        timeSlot,
+        timestamp: new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }),
+        source: 'Website Modal Form'
+      });
+
+      showToast(`Thank you ${name}! Appointment booked for ${date} (${timeSlot}) at Rajender Nagar branch.`);
+      closeBookingModal();
+      modalForm.reset();
+
+      setTimeout(() => {
+        const message = `Hello A Plus Dental Clinic! I would like to confirm my appointment booking:%0A%0A- *Name*: ${encodeURIComponent(name)}%0A- *Phone*: ${phone}%0A- *Branch*: Rajender Nagar%0A- *Treatment*: General Consultation%0A- *Date*: ${date}%0A- *Time Slot*: ${encodeURIComponent(timeSlot)}`;
+        window.open(`https://wa.me/917838697614?text=${message}`, '_blank');
+      }, 1500);
+    });
+  }
+
   const autoLeadForm = document.getElementById('autoLeadForm');
   if (autoLeadForm) {
     autoLeadForm.addEventListener('submit', (e) => {
@@ -754,8 +980,13 @@ function initFormHandlers() {
 
       const name = document.getElementById('popName').value.trim();
       const phone = document.getElementById('popPhone').value.trim();
-      const treatment = document.getElementById('popTreatment').value;
-      const branch = document.getElementById('popBranch').value;
+      
+      const treatmentEl = document.getElementById('popTreatment');
+      const treatment = treatmentEl ? treatmentEl.value : 'Full Mouth Implant (30% OFF)';
+      
+      const branchEl = document.getElementById('popBranch');
+      const branch = branchEl ? branchEl.value : 'Rajender Nagar';
+      
       const date = new Date().toISOString().split('T')[0];
 
       saveAppointment({
@@ -838,39 +1069,7 @@ function showToast(msg, isError = false) {
   setTimeout(() => toast.classList.remove('show'), 4000);
 }
 
-// Cost Calculator Logic
-let currentCostState = { key: 'implants', baseCost: 22000, procName: 'Dental Implant', units: 1, multiplier: 1 };
 
-function calculateCost(key, baseCost, element) {
-  const cards = document.querySelectorAll('.calc-select-card');
-  cards.forEach(c => c.classList.remove('selected'));
-  if (element) element.classList.add('selected');
-
-  const nameMap = { implants: 'Dental Implant', rct: 'Rotary Root Canal (RCT)', aligners: 'Invisible Aligners', whitening: 'Laser Teeth Whitening' };
-  currentCostState.key = key;
-  currentCostState.baseCost = baseCost;
-  currentCostState.procName = nameMap[key] || 'Dental Procedure';
-  recalculateCost();
-}
-
-function updateUnits(val) {
-  currentCostState.units = parseInt(val, 10);
-  document.getElementById('unitDisplay').textContent = val;
-  recalculateCost();
-}
-
-function recalculateCost() {
-  const materialSelect = document.getElementById('materialSelect');
-  if (materialSelect) currentCostState.multiplier = parseFloat(materialSelect.value);
-
-  const finalTotal = Math.round(currentCostState.baseCost * currentCostState.units * currentCostState.multiplier);
-  const emiVal = Math.round(finalTotal / 12);
-
-  document.getElementById('summaryProcName').textContent = currentCostState.procName;
-  document.getElementById('summaryBasePrice').textContent = `₹${currentCostState.baseCost.toLocaleString('en-IN')}`;
-  document.getElementById('totalPriceDisplay').textContent = `₹${finalTotal.toLocaleString('en-IN')}`;
-  document.getElementById('emiDisplay').textContent = `₹${emiVal.toLocaleString('en-IN')} / month`;
-}
 
 // Sticky Header & Active Nav Scroll Listener
 function initScrollNav() {
@@ -901,4 +1100,38 @@ function initScrollNav() {
       }
     });
   });
+}
+
+// Render Services Ticker dynamically
+function renderDynamicServicesTicker() {
+  const container = document.getElementById('dynamicServicesTicker');
+  if (!container) return;
+
+  const services = JSON.parse(localStorage.getItem('aplus_services_ticker') || '[]');
+  if (services.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  // Generate Set 1 and Set 2 for a seamless horizontal loop
+  const htmlSet = services.map(s => `
+    <a href="#treatments" class="ribbon-card">
+      <img src="${s.img}" class="ribbon-card-img" alt="${s.title}">
+      <div class="ribbon-label">${s.title}</div>
+    </a>
+  `).join('');
+
+  container.innerHTML = `
+    <!-- Set 1 -->
+    ${htmlSet}
+    <!-- Set 2 -->
+    ${htmlSet}
+  `;
+}
+
+function updateAboutImage(imgSrc) {
+  const aboutImg = document.getElementById('aboutReceptionImg');
+  if (aboutImg) {
+    aboutImg.src = imgSrc || 'assets/clinic_reception.jpg';
+  }
 }

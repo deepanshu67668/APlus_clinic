@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>A Plus Dental Clinic & Implant Centre | Best CGHS & Implant Hospital at Ghaziabad | ISO & NABH Certified</title>
-  <meta name="description" content="Empanelled with CGHS & PM-JAY. A Plus Dental Clinic & Implant Centre - Best CGHS & Implant Hospital at Ghaziabad led by Dr. Vishal Verma. 3000+ Successful Implant Cases Done. ISO & Quality Council of India (NABH) Certified. Call +91 78386 97614.">
+  <title>A Plus Dental Clinic & Implant Centre | Best Dental Clinic & Implant Center in Delhi NCR | NABH & ISO Certified</title>
+  <meta name="description" content="Empanelled with CGHS & PM-JAY. A Plus Dental Clinic & Implant Centre - Best Dental Clinic & Implant Center in Delhi NCR led by Dr. Vishal Verma. 3000+ Successful Implant Cases Done. Quality Council of India (NABH) & ISO Certified. Call +91 78386 97614.">
   <meta name="keywords" content="A Plus Dental Clinic, Best Implant Hospital Ghaziabad, CGHS Dental Hospital Ghaziabad, NABH Certified Dental Clinic, ISO Certified Dentist Sahibabad, Dr Vishal Verma Implantologist">
   
   <!-- Browser Tab Favicon Logo -->
@@ -16,29 +16,20 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <!-- Premium Top Contact & Timings Announcement Bar (Single Row Alignment) -->
-  <div class="top-bar">
-    <div class="container top-bar-content">
-      <div class="top-bar-left">
-        <span class="emergency-tag"><i class="fa-solid fa-bolt"></i> 24/7 Emergency</span>
-        <a href="tel:+917838697614" class="top-info-item top-phone-pill">
-          <i class="fa-solid fa-phone-volume"></i>
-          <span>+91 78386 97614</span>
-        </a>
-        <a href="tel:+918941940081" class="top-info-item top-phone-pill">
-          <i class="fa-solid fa-phone"></i>
-          <span>+91 89419 40081</span>
-        </a>
+  <!-- Premium Dark Teal Top Contact & Timings Bar -->
+  <div class="site-top-bar">
+    <div class="container site-top-bar-content">
+      <div class="top-left-info">
+        <span><i class="fa-solid fa-location-dot"></i> Rajender Nagar, Sahibabad, Ghaziabad, UP</span>
+        <span><i class="fa-solid fa-envelope"></i> info@aplusdentalclinic.com</span>
       </div>
-
-      <div class="top-bar-right">
-        <div class="top-info-item">
-          <i class="fa-regular fa-clock" style="color: #fef08a;"></i>
-          <span>Mon - Sun: 9:00 AM - 8:30 PM</span>
+      <div class="top-right-info">
+        <span><i class="fa-regular fa-clock"></i> Mon - Sun: 10:00 AM - 8:30 PM (All 7 Days)</span>
+        <div class="top-socials">
+          <a href="https://www.instagram.com/aplus_dental" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+          <a href="https://www.facebook.com/share/1CnDtRMDjZ/?mibextid=wwXIfr" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="https://wa.me/917838697614" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
         </div>
-        <span class="badge badge-cghs"><i class="fa-solid fa-shield-halved"></i> CGHS & PM-JAY Empanelled</span>
-        <span class="badge badge-gold"><i class="fa-solid fa-award"></i> ISO & NABH Certified</span>
       </div>
     </div>
   </div>
@@ -51,7 +42,7 @@
           <!-- Official Circular Logo Image + Premium Typography Branding -->
           <img src="assets/logo.png" class="brand-logo-img" alt="A Plus Dental Logo">
           <div class="logo-text">
-            <span class="logo-title">A PLUS DENTAL</span>
+            <span class="logo-title">A+ DENTAL CLINIC</span>
             <span class="logo-subtitle">& IMPLANT CENTRE</span>
           </div>
         </a>
@@ -59,16 +50,17 @@
         <!-- Streamlined Clean Nav Links -->
         <ul class="nav-links">
           <li><a href="#home" class="nav-link active">Home</a></li>
-          <li><a href="#treatments" class="nav-link">Treatments</a></li>
-          <li><a href="#doctors" class="nav-link">Doctors</a></li>
-          <li><a href="#blogs" class="nav-link">Blogs</a></li>
-          <li><a href="#reviews" class="nav-link">Reviews</a></li>
+          <li><a href="#about-section" class="nav-link">About Us</a></li>
+          <li><a href="#treatments" class="nav-link">Services</a></li>
+          <li><a href="#doctors" class="nav-link">Our Doctors</a></li>
+          <li><a href="#gallery" class="nav-link">Gallery</a></li>
+          <li><a href="#reviews" class="nav-link">Patient Info</a></li>
+          <li><a href="#locations" class="nav-link">Contact Us</a></li>
         </ul>
 
         <!-- Action Buttons Bar -->
         <div class="nav-actions">
-          <a href="tel:+917838697614" class="btn btn-outline btn-sm"><i class="fa-solid fa-phone"></i> Call Now</a>
-          <a href="#book" class="btn btn-primary btn-sm"><i class="fa-solid fa-calendar-check"></i> Book Appointment</a>
+          <button onclick="openBookingModal()" class="btn btn-primary btn-sm"><i class="fa-solid fa-calendar-check"></i> Book Appointment</button>
         </div>
 
         <button class="mobile-menu-btn" id="openMobileNav" aria-label="Toggle Navigation">
@@ -84,7 +76,7 @@
       <div class="brand-logo">
         <img src="assets/logo.png" class="brand-logo-img" alt="A Plus Dental Logo">
         <div class="logo-text">
-          <span class="logo-title">A PLUS DENTAL</span>
+          <span class="logo-title">A+ DENTAL CLINIC</span>
           <span class="logo-subtitle">& IMPLANT CENTRE</span>
         </div>
       </div>
@@ -92,161 +84,251 @@
     </div>
     <ul class="mobile-links">
       <li><a href="#home" onclick="closeMobileMenu()">Home</a></li>
-      <li><a href="#treatments" onclick="closeMobileMenu()">Treatments & Costs</a></li>
-      <li><a href="#calculator" onclick="closeMobileMenu()">Cost & EMI Estimator</a></li>
-      <li><a href="#doctors" onclick="closeMobileMenu()">Doctor Credentials</a></li>
-      <li><a href="#" onclick="closeMobileMenu(); openFullGalleryModal();">Clinic Photos (Gallery)</a></li>
-      <li><a href="#blogs" onclick="closeMobileMenu()">Dental Blogs</a></li>
-      <li><a href="#dental-camp" onclick="closeMobileMenu()">Workplace Dental Camp</a></li>
-      <li><a href="#reviews" onclick="closeMobileMenu()">Google Reviews</a></li>
-      <li><a href="#locations" onclick="closeMobileMenu()">Contact & Map</a></li>
-      <li><a href="#faq" onclick="closeMobileMenu()">FAQs</a></li>
+      <li><a href="#about-section" onclick="closeMobileMenu()">About Us</a></li>
+      <li><a href="#treatments" onclick="closeMobileMenu()">Services</a></li>
+      <li><a href="#doctors" onclick="closeMobileMenu()">Our Doctors</a></li>
+      <li><a href="#" onclick="closeMobileMenu(); openFullGalleryModal();">Gallery</a></li>
+      <li><a href="#blogs" onclick="closeMobileMenu()">Blogs</a></li>
+      <li><a href="#dental-camp" onclick="closeMobileMenu()">Dental Camp</a></li>
+      <li><a href="#reviews" onclick="closeMobileMenu()">Testimonials</a></li>
+      <li><a href="#locations" onclick="closeMobileMenu()">Contact Us</a></li>
     </ul>
     <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
       <a href="tel:+917838697614" class="btn btn-outline" style="width: 100%;"><i class="fa-solid fa-phone"></i> +91 78386 97614</a>
-      <a href="#book" class="btn btn-primary" onclick="closeMobileMenu()" style="width: 100%;"><i class="fa-solid fa-calendar-check"></i> Book Appointment</a>
+      <button onclick="closeMobileMenu(); openBookingModal();" class="btn btn-primary" style="width: 100%;"><i class="fa-solid fa-calendar-check"></i> Book Appointment</button>
     </div>
   </div>
 
   <!-- Main Content Body -->
   <main>
-    <!-- Hero Section with Multi-Image Crossfade Background Slideshow -->
     <section class="hero hero-slideshow-section" id="home">
-      
-      <!-- Multi-Image Slideshow Container -->
-      <div class="hero-slideshow-bg">
-        <div class="slide-item active" style="background-image: url('assets/hero_clinic.jpg');"></div>
-        <div class="slide-item" style="background-image: url('assets/clinic_reception.jpg');"></div>
-        <div class="slide-item" style="background-image: url('assets/dental_implants.jpg');"></div>
-        <div class="slide-item" style="background-image: url('assets/clear_aligners.jpg');"></div>
-      </div>
-      <div class="hero-slideshow-overlay"></div>
-
+      <!-- Background Image & Overlay -->
+      <div class="hero-bg-image"></div>
+      <div class="hero-bg-overlay"></div>
       <div class="container hero-grid" style="position: relative; z-index: 10;">
         <div class="hero-content">
-          <h1 class="hero-title">Best CGHS & Implant Hospital <span>at Ghaziabad</span></h1>
-          <p class="hero-desc">Over <strong>3,000+ Successful Implant Cases Done</strong> with world-class facilities. <strong>ISO Certified</strong> and <strong>Quality Council of India (NABH / QCI) Certified</strong> dental care led by Dr. Vishal Verma.</p>
+          <h1 class="hero-title">CREATING<br><span>BEAUTIFUL SMILES</span><br>THAT LAST A LIFETIME</h1>
+          <p class="hero-desc">Advanced Dentistry. Compassionate Care. Trusted by Families.</p>
           
-          <div class="trust-badges-row">
-            <div class="rating-box">
-              <span class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span>
-              <span style="font-weight: 800; font-size: 0.95rem;">4.9 / 5</span>
-              <span style="color: var(--text-muted); font-size: 0.82rem;">(500+ Google Reviews)</span>
-            </div>
-            <div class="trust-item"><i class="fa-solid fa-tooth"></i> 3,000+ Implant Cases</div>
-            <div class="trust-item"><i class="fa-solid fa-shield-halved"></i> ISO & NABH Certified</div>
+          <!-- Trust bullet list -->
+          <div class="hero-trust-bullets">
+            <div class="bullet-item"><i class="fa-solid fa-user-doctor"></i> Experienced Specialists</div>
+            <div class="bullet-item"><i class="fa-solid fa-microscope"></i> Advanced Technology</div>
+            <div class="bullet-item"><i class="fa-solid fa-syringe"></i> Painless Treatment</div>
+            <div class="bullet-item"><i class="fa-solid fa-shield-virus"></i> Sterilization & Safety</div>
+            <div class="bullet-item"><i class="fa-solid fa-heart-pulse"></i> Personalized Care</div>
           </div>
-
-          <div class="hero-cta-buttons-row">
-            <a href="#book" class="btn btn-primary btn-lg"><i class="fa-solid fa-calendar-days"></i> Instant Booking</a>
-            <button onclick="triggerDiscountOffer()" class="btn btn-gold btn-lg"><i class="fa-solid fa-tags"></i> Get 30% OFF Offer</button>
+          
+          <div class="hero-actions-row">
+            <button onclick="openBookingModal()" class="btn btn-primary"><i class="fa-solid fa-calendar-check"></i> Book Appointment</button>
+            <a href="https://wa.me/917838697614" target="_blank" class="btn btn-outline-teal"><i class="fa-brands fa-whatsapp"></i> WhatsApp Us</a>
           </div>
         </div>
 
-        <!-- Appointment Form Widget -->
-        <div class="booking-card-widget" id="book">
-          <div class="widget-header">
-            <h3 class="widget-title"><i class="fa-solid fa-calendar-plus" style="color: var(--primary);"></i> Book Your Appointment</h3>
-            <p class="widget-subtitle">Free Checkup at CGHS & NABH Certified Hospital</p>
+        <!-- Right side image and floating badges -->
+        <div class="hero-right-side">
+          <div class="hero-img-box-wrapper">
+            <img src="assets/hero_patient.jpg" class="hero-main-img" alt="Happy Patient Smile Transformation">
+            
+            <!-- Floating Panels Medallion Card -->
+            <div class="floating-panel-card">
+              <h4 class="panel-card-title">ON PANEL</h4>
+              <div class="panel-card-top-part">
+                <div class="panel-vertical-ticker">
+                  <div class="panel-ticker-content">
+                    <!-- Set 1 -->
+                    <div class="panel-ticker-item">
+                      <span class="panel-name">CGHS</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                    <div class="panel-ticker-item">
+                      <span class="panel-name">DGHS</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                    <div class="panel-ticker-item">
+                      <span class="panel-name">ECHS</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                    <div class="panel-ticker-item">
+                      <span class="panel-name">CAPF</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                    <div class="panel-ticker-item">
+                      <span class="panel-name" style="font-size: 1.25rem;">AIR INDIA</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                    <div class="panel-ticker-item">
+                      <span class="panel-name">DJB</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                    <div class="panel-ticker-item">
+                      <span class="panel-name">DMRC</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                    <div class="panel-ticker-item">
+                      <span class="panel-name">AIU</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                    <div class="panel-ticker-item">
+                      <span class="panel-name">DU</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                    <div class="panel-ticker-item">
+                      <span class="panel-name">PBHS</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+
+                    <!-- Set 2 -->
+                    <div class="panel-ticker-item">
+                      <span class="panel-name">CGHS</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                    <div class="panel-ticker-item">
+                      <span class="panel-name">DGHS</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                    <div class="panel-ticker-item">
+                      <span class="panel-name">ECHS</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                    <div class="panel-ticker-item">
+                      <span class="panel-name">CAPF</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                    <div class="panel-ticker-item">
+                      <span class="panel-name" style="font-size: 1.25rem;">AIR INDIA</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                    <div class="panel-ticker-item">
+                      <span class="panel-name">DJB</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                    <div class="panel-ticker-item">
+                      <span class="panel-name">DMRC</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                    <div class="panel-ticker-item">
+                      <span class="panel-name">AIU</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                    <div class="panel-ticker-item">
+                      <span class="panel-name">DU</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                    <div class="panel-ticker-item">
+                      <span class="panel-name">PBHS</span>
+                      <span class="panel-status">Empanelled</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Combined Trust Badge at the bottom of the card -->
+              <div class="panel-card-bottom-badge">
+                <img src="assets/logo.png" alt="A Plus Dental Logo" class="tooth-icon-svg" style="object-fit: contain; width: 36px; height: 36px; border-radius: 50%; background: #ffffff; padding: 2px;">
+                <div class="badge-text">
+                  <span class="badge-number">10+ YEARS</span>
+                  <span class="badge-desc">OF TRUSTED DENTAL CARE</span>
+                </div>
+              </div>
+            </div>
           </div>
-
-          <form class="booking-form" id="appointmentForm">
-            <div class="form-group">
-              <label class="form-label">Full Name</label>
-              <input type="text" id="patientName" class="form-input" placeholder="e.g. Rahul Sharma" required>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Phone Number</label>
-                <input type="tel" id="patientPhone" class="form-input" placeholder="10-digit Mobile" required pattern="[0-9]{10}">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Preferred Branch</label>
-                <select id="preferredBranch" class="form-select">
-                  <option value="Rajender Nagar">Rajender Nagar (Hindon)</option>
-                  <option value="Shyam Park">Shyam Park Ext.</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Select Service</label>
-                <select id="selectedTreatment" class="form-select">
-                  <option value="Dental Implants">Dental Implants (30% OFF)</option>
-                  <option value="Root Canal Treatment">Painless Root Canal (RCT)</option>
-                  <option value="Invisible Aligners">Invisible Braces / Aligners</option>
-                  <option value="Teeth Whitening">Teeth Whitening & Cleaning</option>
-                  <option value="Crowns & Bridges">Dental Crowns & Bridges</option>
-                  <option value="General Consultation">General Consultation</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Preferred Date</label>
-                <input type="date" id="appointmentDate" class="form-input" required onchange="checkTimeSlotAvailability()">
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Select Time Slot</label>
-              <select id="appointmentTimeSlot" class="form-select" required onchange="checkTimeSlotAvailability()">
-                <option value="09:00 AM - 10:00 AM">09:00 AM - 10:00 AM (Morning)</option>
-                <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM (Morning)</option>
-                <option value="11:00 AM - 12:00 PM">11:00 AM - 12:00 PM (Morning)</option>
-                <option value="12:00 PM - 01:00 PM">12:00 PM - 01:00 PM (Afternoon)</option>
-                <option value="04:00 PM - 05:00 PM">04:00 PM - 05:00 PM (Evening)</option>
-                <option value="05:00 PM - 06:00 PM">05:00 PM - 06:00 PM (Evening)</option>
-                <option value="06:00 PM - 07:00 PM">06:00 PM - 07:00 PM (Evening)</option>
-                <option value="07:00 PM - 08:00 PM">07:00 PM - 08:00 PM (Evening)</option>
-              </select>
-            </div>
-
-            <!-- Real-Time Slot Availability Indicator -->
-            <div id="slotStatusIndicator" style="margin-bottom: 0.85rem; font-size: 0.82rem; font-weight: 700; display: flex; align-items: center; gap: 0.4rem; color: #16a34a; background: rgba(34, 197, 94, 0.1); padding: 0.4rem 0.75rem; border-radius: var(--radius-sm);">
-              <i class="fa-solid fa-circle-check"></i> <span>Slot Available for Booking</span>
-            </div>
-
-            <button type="submit" class="btn btn-primary" id="confirmConsultationBtn" style="width: 100%; margin-top: 0.25rem; padding: 0.9rem;">
-              <i class="fa-solid fa-paper-plane"></i> Confirm Consultation
-            </button>
-          </form>
         </div>
       </div>
     </section>
 
-    <!-- Highlights Row -->
-    <section class="highlights-section">
+    <!-- New 14 Services Ribbon Row in Running Ticker State (Seamless Loop) -->
+    <div class="services-ribbon-bar ticker-state">
+      <div class="services-ticker-wrapper" id="dynamicServicesTicker">
+        <!-- Rendered dynamically from LocalStorage/Firebase Realtime Database -->
+      </div>
+    </div>
+
+    <!-- New About & Why Choose Section (From Screenshot) -->
+    <section class="section" id="about-section" style="background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 4.5rem 0;">
       <div class="container">
-        <div class="highlights-grid">
-          <div class="highlight-card">
-            <div class="hl-icon"><i class="fa-solid fa-hospital-user"></i></div>
-            <div>
-              <h4 class="hl-title">CGHS & PM-JAY Approved</h4>
-              <p class="hl-desc">Empanelled with Central Govt schemes & major health insurances.</p>
+        <div class="about-why-grid">
+          
+          <!-- Column 1: About Clinic -->
+          <div class="about-col">
+            <h2 class="col-title" style="color: var(--primary); font-size: 1.4rem; font-weight: 800; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">About A+ Dental Clinic & Implant Centre</h2>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">We are a NABH accredited clinic committed to delivering world-class dental care with advanced technology and a patient-first approach.</p>
+            
+            <div class="about-checklist" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem;">
+              <div class="checklist-item"><i class="fa-solid fa-circle-check" style="color: var(--primary);"></i> NABH Accredited Clinic</div>
+              <div class="checklist-item"><i class="fa-solid fa-circle-check" style="color: var(--primary);"></i> Advanced Equipment & Technology</div>
+              <div class="checklist-item"><i class="fa-solid fa-circle-check" style="color: var(--primary);"></i> Highly Experienced Dental Specialists</div>
+              <div class="checklist-item"><i class="fa-solid fa-circle-check" style="color: var(--primary);"></i> Strict Sterilization & Safety Protocols</div>
+            </div>
+            
+            <button onclick="openBookingModal()" class="btn btn-primary" style="margin-bottom: 1.5rem; padding: 0.65rem 1.25rem; font-size: 0.85rem;"><i class="fa-solid fa-info-circle"></i> Know More About Us</button>
+            
+            <!-- Reception Image from assets -->
+            <div class="about-img-box" style="margin-top: 0.5rem; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-md);">
+              <img id="aboutReceptionImg" src="assets/clinic_reception.jpg" alt="A Plus Clinic Reception Lounge" style="width: 100%; height: 200px; object-fit: cover;">
             </div>
           </div>
-          <div class="highlight-card">
-            <div class="hl-icon"><i class="fa-solid fa-tooth"></i></div>
-            <div>
-              <h4 class="hl-title">3000+ Implants Done</h4>
-              <p class="hl-desc">German & US imported titanium implants with lifetime guarantee.</p>
+
+          <!-- Column 2: Why Choose Us -->
+          <div class="why-col">
+            <h2 class="col-title" style="color: var(--primary); font-size: 1.4rem; font-weight: 800; margin-bottom: 1.25rem; text-transform: uppercase; letter-spacing: 0.03em;">Why Choose Us?</h2>
+            
+            <div class="why-list" style="display: flex; flex-direction: column; gap: 1rem;">
+              <div class="why-item">
+                <div class="why-icon"><i class="fa-solid fa-user-clock"></i></div>
+                <div>
+                  <h4 class="why-title">10+ Years of Trusted Care</h4>
+                  <p class="why-desc">Over a decade of delivering dental excellence and healthy smiles.</p>
+                </div>
+              </div>
+              <div class="why-item">
+                <div class="why-icon"><i class="fa-solid fa-award"></i></div>
+                <div>
+                  <h4 class="why-title">NABH Accredited Clinic</h4>
+                  <p class="why-desc">Quality Council of India certified for highest safety standards.</p>
+                </div>
+              </div>
+              <div class="why-item">
+                <div class="why-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+                <div>
+                  <h4 class="why-title">Painless & Comfortable Treatment</h4>
+                  <p class="why-desc">Modern rotary and computerized systems for painless dentistry.</p>
+                </div>
+              </div>
+              <div class="why-item">
+                <div class="why-icon"><i class="fa-solid fa-wallet"></i></div>
+                <div>
+                  <h4 class="why-title">Transparent Pricing</h4>
+                  <p class="why-desc">No hidden charges. Clear and detailed explanations for every plan.</p>
+                </div>
+              </div>
+              <div class="why-item">
+                <div class="why-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                <div>
+                  <h4 class="why-title">Personalized Treatment Plans</h4>
+                  <p class="why-desc">Custom plans tailored to your dental concerns and goals.</p>
+                </div>
+              </div>
+              <div class="why-item">
+                <div class="why-icon"><i class="fa-solid fa-headset"></i></div>
+                <div>
+                  <h4 class="why-title">Post Treatment Care & Support</h4>
+                  <p class="why-desc">Regular follow-ups and comprehensive post-op guidelines.</p>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="highlight-card">
-            <div class="hl-icon"><i class="fa-solid fa-award"></i></div>
-            <div>
-              <h4 class="hl-title">ISO & NABH Certified</h4>
-              <p class="hl-desc">Quality Council of India (NABH / QCI) accredited excellence.</p>
+
+          <!-- Column 3: NABH Accredited -->
+          <div class="nabh-col">
+            <h2 class="col-title" style="color: var(--primary); font-size: 1.4rem; font-weight: 800; margin-bottom: 1.25rem; text-transform: uppercase; letter-spacing: 0.03em;">NABH Accredited</h2>
+            
+            <div class="nabh-badge-card" style="text-align: center; background: #faf5ff; border: 1.5px solid #d8b4fe; border-radius: var(--radius-md); padding: 2rem 1.5rem; box-shadow: var(--shadow-md);">
+              <img src="assets/nabh_certificate.jpg" alt="NABH Quality Seal" style="width: 130px; height: 130px; object-fit: contain; margin: 0 auto 1.5rem auto; display: block; background: white; padding: 0.5rem; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+              <h4 style="font-size: 1.1rem; color: #6b21a8; font-weight: 800; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.02em;">Certified Quality</h4>
+              <p style="color: #5b21b6; font-size: 0.88rem; line-height: 1.5; margin-bottom: 0;">Your safety. Our priority. We follow the highest standards of quality and patient safety as per Quality Council of India regulations.</p>
             </div>
           </div>
-          <div class="highlight-card">
-            <div class="hl-icon"><i class="fa-solid fa-credit-card"></i></div>
-            <div>
-              <h4 class="hl-title">0% Interest EMI Options</h4>
-              <p class="hl-desc">Easy monthly installments for high-end dental procedures.</p>
-            </div>
-          </div>
+          
         </div>
       </div>
     </section>
@@ -266,89 +348,7 @@
       </div>
     </section>
 
-    <!-- Interactive Cost & EMI Estimator -->
-    <section class="section calc-section" id="calculator">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-subtitle">Transparent Pricing</span>
-          <h2 class="section-title">Dental Treatment Cost & EMI Estimator</h2>
-          <p class="section-desc">Calculate estimated treatment costs and explore 0% interest EMI options upfront with zero hidden charges.</p>
-        </div>
 
-        <div class="calc-container-box">
-          <div>
-            <h3 class="calc-left-title">Select Required Treatment</h3>
-            
-            <div class="calc-options-grid">
-              <div class="calc-select-card selected" onclick="calculateCost('implants', 22000, this)">
-                <i class="fa-solid fa-tooth"></i>
-                <div class="calc-select-name">Dental Implant</div>
-              </div>
-              <div class="calc-select-card" onclick="calculateCost('rct', 4500, this)">
-                <i class="fa-solid fa-syringe"></i>
-                <div class="calc-select-name">Rotary RCT</div>
-              </div>
-              <div class="calc-select-card" onclick="calculateCost('aligners', 48000, this)">
-                <i class="fa-solid fa-sparkles"></i>
-                <div class="calc-select-name">Clear Aligners</div>
-              </div>
-              <div class="calc-select-card" onclick="calculateCost('whitening', 6000, this)">
-                <i class="fa-solid fa-sun"></i>
-                <div class="calc-select-name">Laser Whitening</div>
-              </div>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-              <label class="form-label">Number of Teeth / Units: <strong id="unitDisplay">1</strong></label>
-              <input type="range" id="unitSlider" min="1" max="10" value="1" style="width: 100%; accent-color: var(--primary);" oninput="updateUnits(this.value)">
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Crown / Material Type</label>
-              <select id="materialSelect" class="form-select" onchange="recalculateCost()">
-                <option value="1">Standard Premium Porcelain</option>
-                <option value="1.3">High-Strength German Zirconia (+30%)</option>
-                <option value="1.6">Metal-Free CAD/CAM Bio-Zirconia (+60%)</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="calc-right-summary">
-            <div>
-              <h3 style="color: white; font-size: 1.4rem; margin-bottom: 1.5rem;">Cost Estimate Summary</h3>
-              
-              <div class="summary-row">
-                <span>Selected Procedure:</span>
-                <strong id="summaryProcName">Dental Implant</strong>
-              </div>
-              <div class="summary-row">
-                <span>Base Unit Cost:</span>
-                <span id="summaryBasePrice">₹22,000</span>
-              </div>
-              <div class="summary-row">
-                <span>CGHS / PM-JAY Benefit:</span>
-                <span style="color: #4ade80;">Applicable</span>
-              </div>
-
-              <div class="total-row">
-                <div>
-                  <div style="font-size: 0.85rem; opacity: 0.8;">Total Estimated Price</div>
-                  <div class="total-amount" id="totalPriceDisplay">₹22,000</div>
-                </div>
-                <a href="#book" class="btn btn-gold"><i class="fa-solid fa-file-invoice"></i> Lock This Offer</a>
-              </div>
-            </div>
-
-            <div class="emi-badge-box">
-              <i class="fa-solid fa-shield-cat" style="font-size: 1.3rem; color: #38bdf8;"></i>
-              <div>
-                <strong>Pay in Easy EMI:</strong> Starting from <span id="emiDisplay" style="color: #38bdf8; font-weight: 800;">₹1,833 / month</span> with 0% interest on major cards.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <!-- Doctor Profile Section (Dynamic Senior & Associate Team) -->
     <section class="section" id="doctors">
@@ -381,7 +381,14 @@
         <div class="section-header">
           <span class="section-subtitle">Infrastructure & Care</span>
           <h2 class="section-title">Clinic Infrastructure & Patient Gallery</h2>
-          <p class="section-desc">Explore our 100% sterilized, state-of-the-art operatory facilities at ISO & Quality Council of India (NABH) certified A Plus Dental Clinic.</p>
+          <p class="section-desc">Explore our 100% sterilized, state-of-the-art operatory facilities at Quality Council of India (NABH) & ISO certified A Plus Dental Clinic.</p>
+        </div>
+
+        <!-- Gallery Filter Tabs -->
+        <div class="gallery-tabs">
+          <button class="gallery-tab-btn active" onclick="filterGallery('all', this)">All Gallery</button>
+          <button class="gallery-tab-btn" onclick="filterGallery('infrastructure', this)"><i class="fa-solid fa-hospital"></i> Clinic Infrastructure</button>
+          <button class="gallery-tab-btn" onclick="filterGallery('patients', this)"><i class="fa-solid fa-arrows-left-right"></i> Patient Before & After</button>
         </div>
 
         <div class="gallery-grid" id="dynamicGalleryGrid">
@@ -411,16 +418,16 @@
         <div class="corporate-camp-card">
           <div class="camp-card-top">
             <div class="camp-left-info">
-              <h2 class="camp-title">Bring a Dental Camp to Your Workplace</h2>
-              <p class="camp-subtitle">Free Checkups & Expert Consultations by NABH Accredited Doctors</p>
+              <h2 class="camp-title">Bring a Dental Camp to Your Workplace or Society</h2>
+              <p class="camp-subtitle">Checkups & Expert Consultations by NABH Accredited Doctors</p>
             </div>
 
             <form class="camp-form-inline" id="corporateCampForm">
               <div class="form-group">
-                <input type="text" id="campCompanyName" class="form-input" placeholder="Company Name" required>
+                <input type="text" id="campCompanyName" class="form-input" placeholder="Company / Society Name" required>
               </div>
               <div class="form-group">
-                <input type="email" id="campEmail" class="form-input" placeholder="Work Email" required>
+                <input type="email" id="campEmail" class="form-input" placeholder="Email Address" required>
               </div>
               <div class="form-group">
                 <input type="tel" id="campPhone" class="form-input" placeholder="Phone Number" required pattern="[0-9]{10}">
@@ -440,23 +447,11 @@
           <div class="camp-consent-row">
             <label class="consent-checkbox-label">
               <input type="checkbox" checked required>
-              <span>I hereby consent to receive calls/messages from A Plus Dental Clinic regarding corporate wellness camps.</span>
+              <span>I hereby consent to receive calls/messages from A Plus Dental Clinic regarding wellness camps.</span>
             </label>
           </div>
 
-          <div class="camp-partners-banner">
-            <div class="camp-banner-text">
-              <h4><i class="fa-solid fa-building-circle-check" style="color: var(--primary);"></i> Trusted by 250+ Leading Companies</h4>
-              <p>Boost employee wellness with on-site dental care from Ghaziabad's top CGHS & NABH certified dental hospital.</p>
-            </div>
-            
-            <div class="partner-logos-row">
-              <div class="partner-logo-item"><i class="fa-solid fa-heart-pulse"></i> VISIT HEALTH</div>
-              <div class="partner-logo-item"><i class="fa-solid fa-shield-halved"></i> BAJAJ FINSERV</div>
-              <div class="partner-logo-item"><i class="fa-solid fa-truck-fast"></i> RELAXO</div>
-              <div class="partner-logo-item"><i class="fa-solid fa-building-columns"></i> CGHS CORP</div>
-            </div>
-          </div>
+
         </div>
       </div>
     </section>
@@ -497,7 +492,7 @@
               </p>
               <p class="branch-timing">
                 <i class="fa-regular fa-clock"></i>
-                <span>Mon - Sun: 9:00 AM - 8:30 PM (All 7 Days)</span>
+                <span>Mon - Sun: 10:00 AM - 8:30 PM (All 7 Days)</span>
               </p>
               <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
                 <i class="fa-solid fa-phone" style="color: var(--primary);"></i> <strong>Phone:</strong> +91 78386 97614 / +91 89419 40081
@@ -509,28 +504,6 @@
             </div>
           </div>
 
-          <!-- Branch 2 -->
-          <div class="location-card">
-            <div>
-              <span class="branch-badge" style="background: var(--accent-gold-light); color: var(--accent-gold);">Shyam Park Branch</span>
-              <h3 class="branch-name">A Plus Dental Clinic</h3>
-              <p class="branch-address">
-                <i class="fa-solid fa-location-dot"></i>
-                <span>D-207, Main Market Road, Opposite Mahaveer Park, Near Jain Temple, Shyam Park Extension, Sahibabad, Ghaziabad, UP 201005</span>
-              </p>
-              <p class="branch-timing">
-                <i class="fa-regular fa-clock"></i>
-                <span>Mon - Sun: 9:30 AM - 8:00 PM</span>
-              </p>
-              <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
-                <i class="fa-solid fa-phone" style="color: var(--primary);"></i> <strong>Phone:</strong> +91 78386 97614
-              </p>
-            </div>
-            <div class="branch-actions">
-              <a href="tel:+917838697614" class="btn btn-outline" style="flex: 1;"><i class="fa-solid fa-phone"></i> Call Clinic</a>
-              <a href="https://maps.app.goo.gl/VgoK1aQVDKTiqQuY9" target="_blank" class="btn btn-primary" style="flex: 1;"><i class="fa-solid fa-location-arrow"></i> Open Directions</a>
-            </div>
-          </div>
         </div>
 
         <!-- Embedded Interactive Map -->
@@ -554,11 +527,11 @@
             
             <div class="faq-item">
               <button class="faq-question" onclick="toggleFaq(this)">
-                <span>What are the operating hours of A Plus Dental clinics?</span>
+                <span>What are the operating hours of A Plus Dental Clinic?</span>
                 <i class="fa-solid fa-plus faq-icon"></i>
               </button>
               <div class="faq-answer">
-                <p>Our clinics in Rajender Nagar and Shyam Park Extension are open 7 days a week from <strong>9:00 AM to 8:30 PM</strong> (Monday through Sunday) for consultations and procedures.</p>
+                <p>Our clinic in Rajender Nagar is open 7 days a week from <strong>10:00 AM to 8:30 PM</strong> (Monday through Sunday) for consultations and procedures.</p>
               </div>
             </div>
 
@@ -574,11 +547,11 @@
 
             <div class="faq-item">
               <button class="faq-question" onclick="toggleFaq(this)">
-                <span>Are A Plus Dental clinics open on weekends?</span>
+                <span>Is A Plus Dental Clinic open on weekends?</span>
                 <i class="fa-solid fa-plus faq-icon"></i>
               </button>
               <div class="faq-answer">
-                <p>Yes, both our Rajender Nagar and Shyam Park Extension branches are fully operational on Saturdays and Sundays with specialist doctors available.</p>
+                <p>Yes, our Rajender Nagar clinic is fully operational on Saturdays and Sundays with specialist doctors available.</p>
               </div>
             </div>
 
@@ -648,11 +621,10 @@
       <div class="footer-grid">
         <div>
           <img src="assets/logo.png" style="height: 60px; width: auto; margin-bottom: 0.85rem;" alt="A Plus Dental Logo">
-          <h3 class="footer-brand-title">A PLUS DENTAL CLINIC</h3>
-          <p class="footer-desc">Best CGHS & Implant Hospital at Ghaziabad. Over 3000+ successful implant cases done. ISO Certified & Quality Council of India (NABH / QCI) Certified facility.</p>
+          <h3 class="footer-brand-title">A+ DENTAL CLINIC & IMPLANT CENTRE</h3>
+          <p class="footer-desc">Best Dental Clinic & Implant Center in Delhi NCR. Over 3000+ successful implant cases done. Quality Council of India (NABH / QCI) Certified & ISO Certified facility.</p>
           <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
             <span class="badge badge-cghs"><i class="fa-solid fa-shield-halved"></i> CGHS & PM-JAY</span>
-            <span class="badge badge-gold"><i class="fa-solid fa-award"></i> ISO & NABH Certified</span>
           </div>
           
           <div class="footer-social-links">
@@ -668,9 +640,9 @@
           <ul class="footer-links">
             <li><a href="#home">Home</a></li>
             <li><a href="#treatments">Our Treatments</a></li>
-            <li><a href="#calculator">Cost & EMI Estimator</a></li>
+
             <li><a href="#doctors">Meet Dr. Vishal Verma</a></li>
-            <li><a href="#" onclick="openFullGalleryModal()">Clinic Photos (Gallery)</a></li>
+            <li><a href="#" onclick="openFullGalleryModal()">Clinic Gallery</a></li>
             <li><a href="#blogs">Dental Articles</a></li>
             <li><a href="#dental-camp">Workplace Dental Camp</a></li>
             <li><a href="#locations">Clinics & Directions</a></li>
@@ -689,15 +661,15 @@
           </ul>
         </div>
 
-        <!-- ISO & NABH Certificate & Accreditations Column (Separate Luxury Medallion Boxes) -->
+        <!-- NABH & ISO Certificate & Accreditations Column (Separate Luxury Medallion Boxes) -->
         <div>
           <h4 class="footer-col-title">Quality & Certifications</h4>
-          <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 1rem;">Accredited ISO 9001:2015 & Quality Council of India (NABH) Dental Hospital.</p>
+          <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 1rem;">Accredited Quality Council of India (NABH) & ISO 9001:2015 Dental Hospital.</p>
           
           <div style="display: flex; flex-direction: column; gap: 0.85rem;">
             <!-- ISO 9001:2015 Premium Gold Medallion Box -->
             <div style="display: flex; align-items: center; gap: 0.85rem; background: linear-gradient(135deg, rgba(30, 58, 138, 0.25), rgba(15, 23, 42, 0.6)); padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1px solid rgba(56, 189, 248, 0.35); box-shadow: 0 4px 15px rgba(0,0,0,0.25);">
-              <img src="assets/iso_certificate.svg" style="width: 64px; height: 64px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); flex-shrink: 0;" alt="ISO 9001:2015 Certified Company">
+              <img src="assets/iso_certificate.jpg" style="width: 64px; height: 64px; object-fit: contain; background: #ffffff; border-radius: var(--radius-sm); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); flex-shrink: 0;" alt="ISO 9001:2015 Certified Company">
               <div>
                 <div style="font-weight: 800; font-size: 0.92rem; color: #38bdf8; letter-spacing: 0.04em;">ISO 9001:2015</div>
                 <div style="font-size: 0.75rem; color: #cbd5e1; font-weight: 500;">Quality Management Facility</div>
@@ -706,7 +678,7 @@
 
             <!-- NABH Accredited Clinic Premium Gold Medallion Box -->
             <div style="display: flex; align-items: center; gap: 0.85rem; background: linear-gradient(135deg, rgba(161, 98, 7, 0.25), rgba(15, 23, 42, 0.6)); padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1px solid rgba(234, 179, 8, 0.35); box-shadow: 0 4px 15px rgba(0,0,0,0.25);">
-              <img src="assets/nabh_certificate.svg" style="width: 64px; height: 64px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); flex-shrink: 0;" alt="NABH Accredited Clinic">
+              <img src="assets/nabh_certificate.jpg" style="width: 64px; height: 64px; object-fit: contain; background: #ffffff; border-radius: var(--radius-sm); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); flex-shrink: 0;" alt="NABH Accredited Clinic">
               <div>
                 <div style="font-weight: 800; font-size: 0.92rem; color: #fef08a; letter-spacing: 0.04em;">NABH ACCREDITED</div>
                 <div style="font-size: 0.75rem; color: #cbd5e1; font-weight: 500;">Quality Council of India (QCI)</div>
@@ -741,12 +713,59 @@
     </a>
   </div>
 
-  <!-- Dedicated Left-Side Floating Gallery Button -->
-  <div class="floating-actions-left">
-    <button onclick="openFullGalleryModal()" class="float-btn-left float-gallery-btn" title="View Clinic Gallery">
-      <i class="fa-solid fa-camera-retro"></i>
-      <span>Clinic Photos</span>
-    </button>
+
+
+  <!-- Dedicated Booking Form Modal Popup -->
+  <div class="modal-overlay" id="bookingModal">
+    <div class="modal-box" style="max-width: 480px; padding: 0; border: none; overflow: hidden; border-radius: var(--radius-lg);">
+      <button class="modal-close-btn" onclick="closeBookingModal()" style="top: 15px; right: 15px; z-index: 1000;"><i class="fa-solid fa-xmark"></i></button>
+      
+      <!-- Booking Card Widget (Re-embedded here inside the popup!) -->
+      <div class="booking-card-widget" style="border: none; border-radius: 0;">
+        <div class="widget-header" style="margin-bottom: 1rem; padding-top: 0.75rem;">
+          <h3 class="widget-title" style="font-size: 1.4rem;">Book Your Appointment</h3>
+          <p class="widget-subtitle">Consultation at QCI NABH Certified Clinic</p>
+        </div>
+
+        <form class="booking-form" id="appointmentModalForm">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="modalPatientName" class="form-input" placeholder="e.g. Rahul Sharma" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input type="tel" id="modalPatientPhone" class="form-input" placeholder="10-digit Mobile" required pattern="[0-9]{10}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Preferred Date</label>
+            <input type="date" id="modalAppointmentDate" class="form-input" required onchange="checkModalTimeSlotAvailability()">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Select Time Slot</label>
+            <select id="modalAppointmentTimeSlot" class="form-select" required onchange="checkModalTimeSlotAvailability()">
+              <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM (Morning)</option>
+              <option value="11:00 AM - 12:00 PM">11:00 AM - 12:00 PM (Morning)</option>
+              <option value="12:00 PM - 01:00 PM">12:00 PM - 01:00 PM (Afternoon)</option>
+              <option value="04:00 PM - 05:00 PM">04:00 PM - 05:00 PM (Evening)</option>
+              <option value="05:00 PM - 06:00 PM">05:00 PM - 06:00 PM (Evening)</option>
+              <option value="06:00 PM - 07:00 PM">06:00 PM - 07:00 PM (Evening)</option>
+              <option value="07:00 PM - 08:00 PM">07:00 PM - 08:00 PM (Evening)</option>
+            </select>
+          </div>
+
+          <!-- Real-Time Slot Availability Indicator -->
+          <div id="modalSlotStatusIndicator" style="margin-bottom: 0.5rem; font-size: 0.76rem; font-weight: 700; display: flex; align-items: center; gap: 0.35rem; color: #16a34a; background: rgba(34, 197, 94, 0.08); padding: 0.3rem 0.55rem; border-radius: var(--radius-sm);">
+            <i class="fa-solid fa-circle-check"></i> <span>Slot Available for Booking</span>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="modalConfirmConsultationBtn" style="width: 100%; margin-top: 0.25rem; padding: 0.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em;">
+            <i class="fa-solid fa-paper-plane"></i> Confirm Consultation
+          </button>
+        </form>
+      </div>
+    </div>
   </div>
 
   <!-- Fullscreen Clinic Photo Gallery Viewer Modal -->
@@ -756,7 +775,7 @@
       <div style="text-align: center; margin-bottom: 1.5rem;">
         <span class="badge badge-primary" style="margin-bottom: 0.5rem;"><i class="fa-solid fa-camera"></i> Interactive Photo Tour</span>
         <h2 style="font-size: 1.8rem; color: var(--secondary);">A Plus Clinic Infrastructure Gallery</h2>
-        <p style="font-size: 0.9rem; color: var(--text-secondary);">State-of-the-art 100% sterilized operatories and luxury waiting lounges at ISO & NABH Certified Hospital.</p>
+        <p style="font-size: 0.9rem; color: var(--text-secondary);">State-of-the-art 100% sterilized operatories and luxury waiting lounges at NABH & ISO Certified Hospital.</p>
       </div>
 
       <div class="full-gallery-grid-container" id="fullGalleryModalContent">
@@ -773,8 +792,8 @@
 
       <div class="lead-modal-header">
         <div class="badge badge-gold" style="margin-bottom: 0.5rem;"><i class="fa-solid fa-gift"></i> Limited Time Offer</div>
-        <h3 style="font-size: 1.6rem; color: var(--secondary); margin-bottom: 0.25rem;">Get Up to 30% OFF + Free Checkup</h3>
-        <p style="font-size: 0.88rem; color: var(--text-secondary);">Best CGHS & Implant Hospital at Ghaziabad. ISO & NABH Certified. Claim 30% OFF today!</p>
+        <h3 style="font-size: 1.6rem; color: var(--secondary); margin-bottom: 0.25rem;">Get 30% discount on full mouth implant</h3>
+        <p style="font-size: 0.88rem; color: var(--text-secondary);">Best Dental Clinic & Implant Center in Delhi NCR. NABH & ISO Certified. Claim 30% OFF today!</p>
       </div>
 
       <form id="autoLeadForm" style="display: flex; flex-direction: column; gap: 0.85rem; margin-top: 1rem;">
@@ -785,25 +804,6 @@
         <div class="form-group">
           <label class="form-label">Mobile Number</label>
           <input type="tel" id="popPhone" class="form-input" placeholder="10-digit Phone Number" required pattern="[0-9]{10}">
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Treatment Needed</label>
-            <select id="popTreatment" class="form-select">
-              <option value="Dental Implants (30% OFF)">Dental Implants (30% OFF)</option>
-              <option value="Root Canal Treatment">Painless Root Canal (RCT)</option>
-              <option value="Invisible Aligners (30% OFF)">Invisible Aligners (30% OFF)</option>
-              <option value="Teeth Whitening">Teeth Whitening</option>
-              <option value="General Checkup">Free Checkup</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Branch</label>
-            <select id="popBranch" class="form-select">
-              <option value="Rajender Nagar">Rajender Nagar</option>
-              <option value="Shyam Park">Shyam Park Ext.</option>
-            </select>
-          </div>
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.85rem; margin-top: 0.5rem;">
           <i class="fa-solid fa-gift"></i> Claim 30% Discount & Book

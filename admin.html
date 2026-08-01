@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard | A Plus Dental Clinic & Implant Centre</title>
+  <title>Admin Dashboard | A+ Dental Clinic & Implant Centre</title>
   
   <!-- Browser Tab Favicon Logo -->
   <link rel="icon" type="image/png" href="assets/logo.png">
@@ -372,7 +372,7 @@
   <div class="pin-modal-overlay" id="pinModal">
     <div class="pin-box">
       <img src="assets/logo.png" style="width: 70px; height: 70px; object-fit: contain; border-radius: 50%; background: #ffffff; padding: 4px; border: 3px solid var(--primary); margin: 0 auto 0.75rem auto; display: block; box-shadow: 0 4px 15px rgba(0,0,0,0.15);" alt="A Plus Dental Logo">
-      <div style="font-weight: 800; font-size: 1.2rem; color: var(--secondary); font-family: 'Outfit', sans-serif;">A PLUS DENTAL</div>
+      <div style="font-weight: 800; font-size: 1.2rem; color: var(--secondary); font-family: 'Outfit', sans-serif;">A+ DENTAL CLINIC</div>
       <div style="font-size: 0.75rem; color: var(--primary); font-weight: 700; font-family: 'Outfit', sans-serif; margin-bottom: 1rem;">& IMPLANT CENTRE</div>
       <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Enter Admin Security Passcode (Default PIN: <strong>1234</strong>)</p>
       
@@ -406,7 +406,7 @@
         <div class="admin-logo">
           <img src="assets/logo.png" style="width: 48px; height: 48px; object-fit: contain; border-radius: 50%; background: #ffffff; padding: 3px; border: 2px solid #38bdf8; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" alt="A Plus Dental Logo">
           <div>
-            <div style="font-weight: 800; font-size: 1.05rem; color: white; font-family: 'Outfit', sans-serif;">A PLUS DENTAL</div>
+            <div style="font-weight: 800; font-size: 1.05rem; color: white; font-family: 'Outfit', sans-serif;">A+ DENTAL CLINIC</div>
             <div style="font-size: 0.68rem; color: var(--primary-light); font-weight: 700; font-family: 'Outfit', sans-serif;">& IMPLANT CENTRE</div>
           </div>
         </div>
@@ -445,6 +445,16 @@
           <li>
             <button class="admin-menu-btn" onclick="switchAdminTab('reviews', this)">
               <i class="fa-solid fa-star"></i> Patient Reviews
+            </button>
+          </li>
+          <li>
+            <button class="admin-menu-btn" onclick="switchAdminTab('services_ticker', this)">
+              <i class="fa-solid fa-arrows-left-right"></i> Services Ticker
+            </button>
+          </li>
+          <li>
+            <button class="admin-menu-btn" onclick="switchAdminTab('website_images', this)">
+              <i class="fa-solid fa-image"></i> Website Images
             </button>
           </li>
           <li>
@@ -579,10 +589,7 @@
                 <label class="form-label">Treatment Title</label>
                 <input type="text" id="treatTitle" class="form-input" placeholder="e.g. Laser Teeth Whitening" required>
               </div>
-              <div class="form-group">
-                <label class="form-label">Price / Cost String</label>
-                <input type="text" id="treatPrice" class="form-input" placeholder="e.g. ₹4,500" required>
-              </div>
+              <input type="hidden" id="treatPrice" value="">
             </div>
             <div class="form-row">
               <div class="form-group">
@@ -614,7 +621,6 @@
                   <th>Image</th>
                   <th>Title</th>
                   <th>Badge</th>
-                  <th>Price</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -904,6 +910,83 @@
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+
+      <!-- Tab: Services Ticker Management -->
+      <div id="tab-services_ticker" class="admin-tab-content" style="display: none;">
+        <div class="admin-card">
+          <h3 id="tickerFormHeading">Add / Edit Services Ticker Item</h3>
+          <form id="tickerForm" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+            <input type="hidden" id="editTickerId">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Service / Treatment Name (CAPITALS Recommended)</label>
+                <input type="text" id="tickerTitle" class="form-input" placeholder="e.g. IMPACTION" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Image URL / Base64</label>
+                <input type="text" id="tickerImg" class="form-input" placeholder="Image path or Base64 string..." required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Upload Image</label>
+                <input type="file" id="tickerFileInput" class="form-input" accept="image/*">
+              </div>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+              <button type="submit" class="btn btn-primary" id="saveTickerBtn"><i class="fa-solid fa-plus"></i> Save Ticker Item</button>
+              <button type="button" onclick="resetTickerForm()" class="btn btn-outline">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="admin-card">
+          <h3>Current Services Ticker Items</h3>
+          <div class="table-responsive" style="margin-top: 1rem;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Treatment Name</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="tickerAdminTable">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Website Images Management -->
+      <div id="tab-website_images" class="admin-tab-content" style="display: none;">
+        <div class="admin-card">
+          <h3>Manage About Us Reception Image</h3>
+          <form id="aboutImageForm" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Current Image Preview</label>
+                <div style="margin-bottom: 0.5rem;">
+                  <img id="aboutImagePreview" src="assets/clinic_reception.jpg" style="max-width: 300px; height: 180px; object-fit: cover; border-radius: 8px; border: 1.5px solid #cbd5e1;" alt="Preview">
+                </div>
+              </div>
+              <div class="form-group" style="display: flex; flex-direction: column; justify-content: center; gap: 0.85rem;">
+                <div>
+                  <label class="form-label">Image URL / Base64</label>
+                  <input type="text" id="aboutImgUrl" class="form-input" placeholder="Enter image URL or Base64 string...">
+                </div>
+                <div>
+                  <label class="form-label">Upload New Image</label>
+                  <input type="file" id="aboutImgFileInput" class="form-input" accept="image/*">
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+              <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Image Settings</button>
+              <button type="button" onclick="resetAboutImageForm()" class="btn btn-outline">Reset to Default</button>
+            </div>
+          </form>
         </div>
       </div>
 

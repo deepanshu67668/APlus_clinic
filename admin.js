@@ -4,6 +4,27 @@
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Seed local storage with default services ticker if not exists
+  if (!localStorage.getItem('aplus_services_ticker') || JSON.parse(localStorage.getItem('aplus_services_ticker') || '[]').length === 0) {
+    const defaultServices = [
+      { id: '1', title: 'DENTAL IMPLANTS', img: 'assets/treatment_implants.jpg' },
+      { id: '2', title: 'ROOT CANAL TREATMENT', img: 'assets/treatment_root_canal.jpg' },
+      { id: '3', title: 'ORTHODONTIC TREATMENT', img: 'assets/treatment_orthodontic.jpg' },
+      { id: '4', title: 'IMPACTION', img: 'assets/treatment_impaction.jpg' },
+      { id: '5', title: 'PEDIATRIC DENTISTRY', img: 'assets/treatment_pediatric.jpg' },
+      { id: '6', title: 'PERIODONTAL TREATMENT', img: 'assets/treatment_periodontal.jpg' },
+      { id: '7', title: 'FULL MOUTH REHABILITATION', img: 'assets/treatment_full_mouth.jpg' },
+      { id: '8', title: 'SMILE DESIGN', img: 'assets/treatment_smile_design.jpg' },
+      { id: '9', title: 'OPG SCAN AVAILABLE', img: 'assets/treatment_opg_scan.jpg' },
+      { id: '10', title: 'DIGITAL INTRAORAL SCAN', img: 'assets/treatment_digital_scan.jpg' },
+      { id: '11', title: 'JAW FRACTURE', img: 'assets/treatment_jaw_fracture.jpg' },
+      { id: '12', title: 'ORAL CANCER DIAGNOSIS', img: 'assets/treatment_oral_cancer.jpg' },
+      { id: '13', title: 'LASER TREATMENT', img: 'assets/treatment_laser.jpg' },
+      { id: '14', title: 'ZIRCONIA CROWN', img: 'assets/treatment_zirconia_crown.jpg' }
+    ];
+    localStorage.setItem('aplus_services_ticker', JSON.stringify(defaultServices));
+  }
+
   initPinAuth();
   initAdminCloudListeners();
   initMobileMenuToggle();
@@ -118,6 +139,43 @@ function initAdminCloudListeners() {
       const list = data ? Object.keys(data).map(key => data[key]) : [];
       localStorage.setItem('aplus_refunds', JSON.stringify(list));
     });
+
+    db.ref('services_ticker').on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const list = Object.keys(data).map(key => data[key]);
+        localStorage.setItem('aplus_services_ticker', JSON.stringify(list));
+        if (typeof renderTickerTable === 'function') renderTickerTable();
+      } else {
+        const defaultServices = [
+          { id: '1', title: 'DENTAL IMPLANTS', img: 'assets/treatment_implants.jpg' },
+          { id: '2', title: 'ROOT CANAL TREATMENT', img: 'assets/treatment_root_canal.jpg' },
+          { id: '3', title: 'ORTHODONTIC TREATMENT', img: 'assets/treatment_orthodontic.jpg' },
+          { id: '4', title: 'IMPACTION', img: 'assets/treatment_impaction.jpg' },
+          { id: '5', title: 'PEDIATRIC DENTISTRY', img: 'assets/treatment_pediatric.jpg' },
+          { id: '6', title: 'PERIODONTAL TREATMENT', img: 'assets/treatment_periodontal.jpg' },
+          { id: '7', title: 'FULL MOUTH REHABILITATION', img: 'assets/treatment_full_mouth.jpg' },
+          { id: '8', title: 'SMILE DESIGN', img: 'assets/treatment_smile_design.jpg' },
+          { id: '9', title: 'OPG SCAN AVAILABLE', img: 'assets/treatment_opg_scan.jpg' },
+          { id: '10', title: 'DIGITAL INTRAORAL SCAN', img: 'assets/treatment_digital_scan.jpg' },
+          { id: '11', title: 'JAW FRACTURE', img: 'assets/treatment_jaw_fracture.jpg' },
+          { id: '12', title: 'ORAL CANCER DIAGNOSIS', img: 'assets/treatment_oral_cancer.jpg' },
+          { id: '13', title: 'LASER TREATMENT', img: 'assets/treatment_laser.jpg' },
+          { id: '14', title: 'ZIRCONIA CROWN', img: 'assets/treatment_zirconia_crown.jpg' }
+        ];
+        db.ref('services_ticker').set(defaultServices);
+        localStorage.setItem('aplus_services_ticker', JSON.stringify(defaultServices));
+        if (typeof renderTickerTable === 'function') renderTickerTable();
+      }
+    });
+
+    db.ref('about_image').on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        localStorage.setItem('aplus_about_image', data);
+        if (typeof loadAboutImageSettings === 'function') loadAboutImageSettings();
+      }
+    });
   } catch (e) {
     console.warn('Admin realtime database sync initialized in fallback mode.', e);
   }
@@ -209,6 +267,8 @@ function switchAdminTab(tabKey, btn) {
     gallery: 'Manage Clinic Photos',
     blogs: 'Manage Oral Health Blogs & Articles',
     reviews: 'Manage Patient Reviews',
+    services_ticker: 'Manage Services Ribbon Ticker',
+    website_images: 'Manage Website Images',
     patients: 'Patient Management Dashboard',
     billing: 'Billing & Invoice Dashboard'
   };
@@ -233,6 +293,8 @@ function loadDashboardData() {
   renderGalleryTable();
   renderBlogsTable();
   renderReviewsTable();
+  renderTickerTable();
+  if (typeof loadAboutImageSettings === 'function') loadAboutImageSettings();
   if (typeof renderPatientsTable === 'function') renderPatientsTable();
   if (typeof renderInvoicesTable === 'function') renderInvoicesTable();
   if (typeof populateDropdownOptions === 'function') populateDropdownOptions();
@@ -287,7 +349,7 @@ function getAllMergedLeads() {
         treatment: String(a.treatment || 'General Consultation'),
         branch: String(a.branch || 'Rajender Nagar'),
         date: String(a.date || 'N/A'),
-        timeSlot: String(a.timeSlot || a.time || '09:00 AM - 10:00 AM'),
+        timeSlot: String(a.timeSlot || a.time || '10:00 AM - 11:00 AM'),
         timestamp: String(a.timestamp || 'N/A'),
         source: String(a.source || 'Website'),
         status: String(a.status || 'New')
@@ -519,7 +581,6 @@ function renderTreatmentsTable() {
       <td><img src="${t.img}" style="width: 50px; height: 40px; object-fit: cover; border-radius: 4px;"></td>
       <td><strong>${t.title}</strong></td>
       <td><span class="badge badge-primary">${t.badge}</span></td>
-      <td>${t.price}</td>
       <td>
         <button onclick="editTreatment('${t.id}')" style="background: transparent; color: var(--primary); font-size: 1.1rem; margin-right: 0.5rem; cursor: pointer;" title="Edit Treatment"><i class="fa-solid fa-pen-to-square"></i></button>
         <button onclick="deleteTreatment('${t.id}')" style="background: transparent; color: #be123c; font-size: 1.1rem; cursor: pointer;" title="Delete Treatment"><i class="fa-solid fa-trash-can"></i></button>
@@ -1066,7 +1127,7 @@ function showToast(msg, isError = false) {
   if (!toast || !toastMsg) return;
 
   toastMsg.textContent = msg;
-  toast.style.background = isError ? '#be123c' : 'linear-gradient(135deg, #0f172a 0%, #0d9488 100%)';
+  toast.style.background = isError ? '#be123c' : 'linear-gradient(135deg, #0f172a 0%, #2582A1 100%)';
   toast.classList.add('show');
 
   setTimeout(() => toast.classList.remove('show'), 3500);
@@ -1632,7 +1693,7 @@ function printSinglePrescription(idx) {
     <head><title>Prescription Rx - A Plus Dental</title></head>
     <body style="font-family: Arial; padding: 3rem; max-width: 600px; margin: 0 auto; border: 1px solid #cbd5e1;">
       <h2>A PLUS DENTAL CLINIC & IMPLANT CENTRE</h2>
-      <p>Address: Rajender Nagar & Shyam Park Ext, Ghaziabad | Tel: +91 78386 97614</p>
+      <p>Address: Rajender Nagar, Ghaziabad | Tel: +91 78386 97614</p>
       <hr>
       <h3>MEDICAL PRESCRIPTION (Rx)</h3>
       <p><strong>Patient Name:</strong> ${p.firstName} ${p.lastName} | <strong>Age:</strong> ${p.age} | <strong>Gender:</strong> ${p.gender}</p>
@@ -2174,7 +2235,7 @@ function viewInvoiceDetail(id) {
       </div>
       <div style="text-align: right;">
         <strong style="color: var(--secondary);">Provider Details:</strong><br>
-        Rajender Nagar & Shyam Park, Ghaziabad<br>
+        Rajender Nagar, Ghaziabad<br>
         Contact: +91 78386 97614
       </div>
     </div>
@@ -2382,5 +2443,192 @@ function processRefundSubmit(e) {
     document.getElementById('refundManagementForm').reset();
     document.getElementById('refundInvoiceDetailsArea').style.display = 'none';
     renderInvoicesTable();
+  }
+}
+
+// Services Ticker File Upload Handler
+const tickerFileInput = document.getElementById('tickerFileInput');
+if (tickerFileInput) {
+  tickerFileInput.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        document.getElementById('tickerImg').value = evt.target.result;
+        showToast('Image loaded successfully!');
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+}
+
+// Services Ticker CRUD
+const tickerForm = document.getElementById('tickerForm');
+if (tickerForm) {
+  tickerForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const editId = document.getElementById('editTickerId').value;
+    const title = document.getElementById('tickerTitle').value.trim();
+    const img = document.getElementById('tickerImg').value.trim();
+
+    let list = JSON.parse(localStorage.getItem('aplus_services_ticker') || '[]');
+
+    if (editId) {
+      // Edit mode
+      const idx = list.findIndex(item => item.id === editId);
+      if (idx !== -1) {
+        list[idx].title = title;
+        list[idx].img = img;
+      }
+    } else {
+      // Add mode
+      const newItem = {
+        id: 'TICK_' + Date.now(),
+        title: title,
+        img: img
+      };
+      list.push(newItem);
+    }
+
+    if (typeof db !== 'undefined' && db) {
+      db.ref('services_ticker').set(list).then(() => {
+        showToast('Services ticker updated and synced to Cloud!');
+        resetTickerForm();
+        renderTickerTable();
+      });
+    } else {
+      localStorage.setItem('aplus_services_ticker', JSON.stringify(list));
+      showToast('Services ticker saved locally!');
+      resetTickerForm();
+      renderTickerTable();
+    }
+  });
+}
+
+function renderTickerTable() {
+  const tbody = document.getElementById('tickerAdminTable');
+  if (!tbody) return;
+
+  const list = JSON.parse(localStorage.getItem('aplus_services_ticker') || '[]');
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-secondary);">No ticker items found.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = list.map(item => `
+    <tr>
+      <td>
+        <img src="${item.img}" style="width: 70px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #cbd5e1;" alt="${item.title}">
+      </td>
+      <td style="font-weight: 800; text-transform: uppercase;">${item.title}</td>
+      <td>
+        <div style="display: flex; gap: 0.5rem;">
+          <button onclick="editTickerItem('${item.id}')" class="btn btn-outline" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;">
+            <i class="fa-solid fa-pen-to-square"></i> Edit
+          </button>
+          <button onclick="deleteTickerItem('${item.id}')" class="btn btn-secondary" style="padding: 0.35rem 0.6rem; font-size: 0.8rem; background: #be123c;">
+            <i class="fa-solid fa-trash"></i> Delete
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function editTickerItem(id) {
+  const list = JSON.parse(localStorage.getItem('aplus_services_ticker') || '[]');
+  const item = list.find(s => s.id === id);
+  if (item) {
+    document.getElementById('editTickerId').value = item.id;
+    document.getElementById('tickerTitle').value = item.title;
+    document.getElementById('tickerImg').value = item.img;
+    document.getElementById('tickerFormHeading').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Edit Services Ticker Item';
+    document.getElementById('saveTickerBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Ticker Item';
+    // Scroll to form
+    document.getElementById('tickerForm').scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+function deleteTickerItem(id) {
+  if (!confirm('Are you sure you want to delete this ticker item?')) return;
+
+  let list = JSON.parse(localStorage.getItem('aplus_services_ticker') || '[]');
+  list = list.filter(item => item.id !== id);
+
+  if (typeof db !== 'undefined' && db) {
+    db.ref('services_ticker').set(list).then(() => {
+      showToast('Ticker item deleted and synced to Cloud!');
+      renderTickerTable();
+    });
+  } else {
+    localStorage.setItem('aplus_services_ticker', JSON.stringify(list));
+    showToast('Ticker item deleted locally!');
+    renderTickerTable();
+  }
+}
+
+function resetTickerForm() {
+  if (tickerForm) tickerForm.reset();
+  document.getElementById('editTickerId').value = '';
+  document.getElementById('tickerFormHeading').innerHTML = 'Add / Edit Services Ticker Item';
+  document.getElementById('saveTickerBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Save Ticker Item';
+}
+
+// Website About Us Reception Image CRUD
+const aboutImgFileInput = document.getElementById('aboutImgFileInput');
+if (aboutImgFileInput) {
+  aboutImgFileInput.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        document.getElementById('aboutImgUrl').value = evt.target.result;
+        document.getElementById('aboutImagePreview').src = evt.target.result;
+        showToast('New image loaded successfully!');
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+}
+
+const aboutImageForm = document.getElementById('aboutImageForm');
+if (aboutImageForm) {
+  aboutImageForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const val = document.getElementById('aboutImgUrl').value.trim() || 'assets/clinic_reception.jpg';
+    
+    if (typeof db !== 'undefined' && db) {
+      db.ref('about_image').set(val).then(() => {
+        showToast('About Us image updated and synced to Cloud!');
+      });
+    } else {
+      localStorage.setItem('aplus_about_image', val);
+      showToast('About Us image saved locally!');
+      loadAboutImageSettings();
+    }
+  });
+}
+
+function loadAboutImageSettings() {
+  const stored = localStorage.getItem('aplus_about_image') || 'assets/clinic_reception.jpg';
+  const preview = document.getElementById('aboutImagePreview');
+  const input = document.getElementById('aboutImgUrl');
+  if (preview) preview.src = stored;
+  if (input) input.value = stored;
+}
+
+function resetAboutImageForm() {
+  const def = 'assets/clinic_reception.jpg';
+  document.getElementById('aboutImgUrl').value = def;
+  document.getElementById('aboutImagePreview').src = def;
+  if (typeof db !== 'undefined' && db) {
+    db.ref('about_image').set(def).then(() => {
+      showToast('Reset to default and synced to Cloud!');
+    });
+  } else {
+    localStorage.setItem('aplus_about_image', def);
+    showToast('Reset to default locally!');
+    loadAboutImageSettings();
   }
 }
